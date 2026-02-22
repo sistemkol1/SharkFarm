@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+    <ApplicationIcon>..\resources\SharkFarm.ico</ApplicationIcon>
 		<DefaultItemExcludes>$(DefaultItemExcludes);config/**;debug/**;logs/**;overlay/**</DefaultItemExcludes>
 		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<!-- TODO: It seems CA1515 is no longer respected inside editorconfig, might be possible to remove later -->
 	<PropertyGroup>
+    <ApplicationIcon>..\resources\SharkFarm.ico</ApplicationIcon>
 		<NoWarn>$(NoWarn),CA1515</NoWarn>
 	</PropertyGroup>
 
