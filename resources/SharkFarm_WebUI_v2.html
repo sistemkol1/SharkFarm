@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharkFarm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #06080f;
+  --bg2:        #0c1020;
+  --bg3:        #131928;
+  --bg4:        #1a2235;
+  --border:     rgba(255,255,255,0.06);
+  --accent:     #e63946;
+  --accent2:    #ff6b35;
+  --green:      #22c55e;
+  --gold:       #f59e0b;
+  --cyan:       #06b6d4;
+  --purple:     #8b5cf6;
+  --blue:       #3b82f6;
+  --text:       #e2e8f0;
+  --text2:      #94a3b8;
+  --text3:      #475569;
+  --sidebar-w:  248px;
+  --topbar-h:   58px;
+  --radius:     10px;
+  --radius-sm:  7px;
+  --transition: 0.15s cubic-bezier(0.4,0,0.2,1);
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 75% 15%, rgba(230,57,70,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 15% 85%, rgba(255,107,53,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(6,182,212,0.03) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+  animation: bgPulse 20s ease-in-out infinite alternate;
+}
+@keyframes bgPulse { 0%{opacity:.6} 100%{opacity:1} }
+
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: linear-gradient(rgba(230,57,70,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.layout { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+/* ══ SIDEBAR ══ */
+.sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: rgba(10,14,26,0.96);
+  border-right: 1px solid rgba(230,57,70,0.1);
+  display: flex; flex-direction: column; flex-shrink: 0;
+  position: relative; z-index: 10;
+  backdrop-filter: blur(24px);
+}
+.sidebar::after {
+  content: '';
+  position: absolute; right: -1px; top: 10%; bottom: 10%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(230,57,70,0.6), transparent);
+}
+
+.sidebar-logo {
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: center; gap: 11px;
+}
+.logo-icon-wrap { position: relative; width: 38px; height: 38px; flex-shrink: 0; }
+.logo-ring {
+  position: absolute; inset: -2px; border-radius: 11px;
+  background: conic-gradient(from 0deg, var(--accent), var(--accent2), #ff1744, var(--accent2), var(--accent));
+  animation: spin 4s linear infinite;
+}
+.logo-ring::after { content:''; position:absolute; inset:2px; border-radius:9px; background:var(--bg2); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.logo-icon { position:relative; z-index:2; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.logo-name { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:17px; letter-spacing:2px; background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:logoShimmer 5s ease infinite; }
+@keyframes logoShimmer { 0%,100%{background-position:0%} 50%{background-position:100%} }
+.logo-sub { font-size:9px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-top:1px; }
+
+.sidebar-status {
+  margin: 12px 14px;
+  padding: 8px 11px;
+  border-radius: var(--radius-sm);
+  background: rgba(34,197,94,0.07);
+  border: 1px solid rgba(34,197,94,0.18);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--green);
+  cursor: pointer; transition: var(--transition);
+}
+.sidebar-status.offline { background:rgba(230,57,70,0.07); border-color:rgba(230,57,70,0.18); color:var(--accent); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s ease infinite; flex-shrink:0; }
+.offline .status-dot { background:var(--accent); box-shadow:0 0 8px var(--accent); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
+.status-text { flex:1; }
+.status-ver { font-size:10px; color:var(--text3); font-weight:400; }
+
+.sidebar-nav { flex:1; padding:8px 10px; display:flex; flex-direction:column; gap:1px; overflow-y:auto; }
+.nav-section { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); padding:10px 10px 4px; margin-top:4px; }
+.nav-item {
+  display:flex; align-items:center; gap:9px;
+  padding:8px 11px; border-radius:var(--radius-sm);
+  cursor:pointer; font-size:13px; font-weight:500; color:var(--text2);
+  transition:var(--transition); border:none; background:none; width:100%; text-align:left;
+  position:relative;
+}
+.nav-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
+.nav-item.active { background:linear-gradient(135deg,rgba(230,57,70,0.18),rgba(255,107,53,0.1)); color:var(--accent); }
+.nav-item.active::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:2px; border-radius:0 2px 2px 0; background:var(--accent); box-shadow:0 0 8px var(--accent); }
+.nav-icon { font-size:15px; width:18px; text-align:center; }
+.nav-badge { margin-left:auto; background:rgba(230,57,70,0.18); color:var(--accent); border-radius:10px; padding:1px 7px; font-size:10px; font-weight:700; }
+
+.sidebar-bottom { padding:10px; border-top:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; gap:1px; }
+
+/* ══ MAIN ══ */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+
+.topbar {
+  height:var(--topbar-h); background:rgba(6,8,15,0.92);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex; align-items:center; padding:0 22px; gap:14px;
+  flex-shrink:0; backdrop-filter:blur(20px);
+}
+.topbar-title { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; background:linear-gradient(135deg,#fff 30%,var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.topbar-sub { font-size:11px; color:var(--text3); }
+.topbar-spacer { flex:1; }
+.topbar-actions { display:flex; align-items:center; gap:8px; }
+.topbar-stat { display:flex; align-items:center; gap:5px; padding:5px 11px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:var(--radius-sm); font-size:12px; color:var(--text2); }
+.topbar-stat strong { font-size:14px; font-weight:700; color:var(--text); }
+.ts-green strong { color:var(--green); }
+.ts-cyan  strong { color:var(--cyan); }
+.ts-gold  strong { color:var(--gold); }
+
+.content { flex:1; overflow-y:auto; overflow-x:hidden; padding:22px; scrollbar-width:thin; scrollbar-color:rgba(230,57,70,0.25) transparent; }
+.content::-webkit-scrollbar { width:4px; }
+.content::-webkit-scrollbar-thumb { background:rgba(230,57,70,0.3); border-radius:4px; }
+
+.page { display:none; animation:fadeUp .2s ease; }
+.page.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══ GRID ══ */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.grid-main-side { display:grid; grid-template-columns:1fr 320px; gap:14px; align-items:start; }
+
+/* ══ CARDS ══ */
+.card { background:rgba(12,16,32,0.85); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius); overflow:hidden; backdrop-filter:blur(8px); }
+.card-header { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:space-between; }
+.card-title { font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; letter-spacing:.5px; color:var(--text); text-transform:uppercase; }
+.card-body { padding:14px 16px; }
+
+/* ══ STAT CARDS ══ */
+.stat-card { position:relative; border-radius:var(--radius); padding:16px; overflow:hidden; }
+.stat-card::before {
+  content:''; position:absolute; inset:0; border-radius:var(--radius); padding:1px;
+  background:linear-gradient(135deg,var(--sc-c1,var(--accent)),rgba(255,255,255,0.06),var(--sc-c1,var(--accent)));
+  background-size:300%; animation:shimmer 4s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+}
+@keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+.sc-red    { background:linear-gradient(145deg,rgba(230,57,70,.15) 0%,rgba(12,16,32,.98) 55%); --sc-c1:#e63946; box-shadow:0 2px 16px rgba(230,57,70,.1); }
+.sc-green  { background:linear-gradient(145deg,rgba(34,197,94,.15) 0%,rgba(12,16,32,.98) 55%); --sc-c1:#22c55e; box-shadow:0 2px 16px rgba(34,197,94,.1); }
+.sc-cyan   { background:linear-gradient(145deg,rgba(6,182,212,.13) 0%,rgba(12,16,32,.98) 55%); --sc-c1:#06b6d4; box-shadow:0 2px 16px rgba(6,182,212,.08); }
+.sc-gold   { background:linear-gradient(145deg,rgba(245,158,11,.15) 0%,rgba(12,16,32,.98) 55%); --sc-c1:#f59e0b; box-shadow:0 2px 16px rgba(245,158,11,.1); }
+.sc-purple { background:linear-gradient(145deg,rgba(139,92,246,.13) 0%,rgba(12,16,32,.98) 55%); --sc-c1:#8b5cf6; box-shadow:0 2px 16px rgba(139,92,246,.08); }
+.sc-blue   { background:linear-gradient(145deg,rgba(59,130,246,.13) 0%,rgba(12,16,32,.98) 55%); --sc-c1:#3b82f6; box-shadow:0 2px 16px rgba(59,130,246,.08); }
+.stat-label { font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
+.stat-val { font-family:'Rajdhani',sans-serif; font-size:36px; font-weight:700; line-height:1; }
+.stat-sub { font-size:11px; color:var(--text3); margin-top:4px; }
+.sc-red    .stat-val { color:var(--accent); }
+.sc-green  .stat-val { color:var(--green); }
+.sc-cyan   .stat-val { color:var(--cyan); }
+.sc-gold   .stat-val { color:var(--gold); }
+.sc-purple .stat-val { color:var(--purple); }
+.sc-blue   .stat-val { color:var(--blue); }
+
+/* ══ BOT TABLE ══ */
+.bot-table { width:100%; border-collapse:collapse; }
+.bot-table th { text-align:left; padding:9px 13px; font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text3); border-bottom:1px solid rgba(255,255,255,0.04); }
+.bot-table td { padding:11px 13px; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; font-size:13px; }
+.bot-table tr:last-child td { border-bottom:none; }
+.bot-table tr { transition:var(--transition); }
+.bot-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+.bot-avatar-sm { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; position:relative; background:var(--bg3); }
+.bot-ring-sm { position:absolute; inset:-2px; border-radius:50%; background:conic-gradient(from 0deg,var(--ring-c,var(--accent)),transparent 180deg,var(--ring-c,var(--accent))); animation:spin 2s linear infinite; }
+.bot-ring-sm::after { content:''; position:absolute; inset:2px; border-radius:50%; background:var(--bg2); }
+.bot-name-cell { font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:700; }
+.bot-game-cell { font-size:11px; color:var(--text2); max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.status-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; white-space:nowrap; }
+.sb-online  { background:rgba(34,197,94,.12); color:#4ade80; border:1px solid rgba(34,197,94,.3); }
+.sb-farming { background:rgba(6,182,212,.12); color:var(--cyan); border:1px solid rgba(6,182,212,.3); }
+.sb-idle    { background:rgba(245,158,11,.12); color:var(--gold); border:1px solid rgba(245,158,11,.3); }
+.sb-offline { background:rgba(71,85,105,.1); color:var(--text3); border:1px solid rgba(71,85,105,.25); }
+.ring-online  { --ring-c:var(--green); }
+.ring-farming { --ring-c:var(--cyan); }
+.ring-idle    { --ring-c:var(--gold); }
+
+.progress-mini { width:75px; height:3px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden; }
+.progress-mini-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--cyan),#7dd3fc); transition:width .5s ease; }
+
+/* Bot cards grid */
+.bots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+.bot-card-full { background:rgba(12,16,32,.9); border-radius:var(--radius); overflow:hidden; position:relative; transition:transform var(--transition),box-shadow var(--transition); border:1px solid transparent; }
+.bot-card-full:hover { transform:translateY(-2px); }
+.bc-online  { border-color:rgba(34,197,94,.25); box-shadow:0 2px 16px rgba(34,197,94,.08); }
+.bc-farming { border-color:rgba(6,182,212,.25); box-shadow:0 2px 16px rgba(6,182,212,.08); }
+.bc-idle    { border-color:rgba(245,158,11,.2); }
+.bc-offline { border-color:rgba(71,85,105,.2); }
+.bot-card-top { height:2px; }
+.bc-online  .bot-card-top { background:linear-gradient(90deg,transparent,var(--green),transparent); background-size:200%; animation:shimmer 3s linear infinite; }
+.bc-farming .bot-card-top { background:linear-gradient(90deg,transparent,var(--cyan),transparent); background-size:200%; animation:shimmer 3s linear infinite; }
+.bc-idle    .bot-card-top { background:var(--gold); opacity:.4; }
+.bc-offline .bot-card-top { background:rgba(71,85,105,.3); }
+.bot-card-body { padding:13px; display:flex; align-items:center; gap:11px; }
+.bot-avatar-lg { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; background:var(--bg3); position:relative; flex-shrink:0; }
+.bot-ring-lg { position:absolute; inset:-2px; border-radius:50%; animation:spin 2.5s linear infinite; }
+.bc-online  .bot-ring-lg { background:conic-gradient(from 0deg,var(--green),transparent 150deg,var(--green)); }
+.bc-farming .bot-ring-lg { background:conic-gradient(from 0deg,var(--cyan),transparent 150deg,var(--cyan)); }
+.bc-idle    .bot-ring-lg { background:conic-gradient(from 0deg,var(--gold),transparent 150deg,var(--gold)); }
+.bc-offline .bot-ring-lg { display:none; }
+.bot-ring-lg::after { content:''; position:absolute; inset:2px; border-radius:50%; background:var(--bg2); }
+.bot-info { flex:1; min-width:0; }
+.bot-name-lg { font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700; }
+.bc-online  .bot-name-lg { color:#86efac; }
+.bc-farming .bot-name-lg { color:#a5f3fc; }
+.bc-idle    .bot-name-lg { color:#fde68a; }
+.bc-offline .bot-name-lg { color:var(--text2); }
+.bot-detail-lg { font-size:11px; color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+.bot-card-stats { display:flex; gap:0; margin:0 13px 0; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; }
+.bot-stat-mini { flex:1; padding:7px; text-align:center; border-right:1px solid rgba(255,255,255,0.04); }
+.bot-stat-mini:last-child { border-right:none; }
+.bot-stat-mini-val { font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:var(--text); line-height:1; }
+.bot-stat-mini-lbl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-top:2px; }
+.bot-card-footer { padding:0 13px 13px; display:flex; gap:5px; }
+
+/* ══ BUTTONS ══ */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:7px 13px; border-radius:var(--radius-sm); font-size:12px; font-weight:600; cursor:pointer; border:none; transition:var(--transition); text-decoration:none; white-space:nowrap; font-family:inherit; }
+.btn:active { transform:scale(.96); }
+.btn-primary { background:linear-gradient(135deg,#b91c1c,var(--accent)); color:#fff; box-shadow:0 2px 12px rgba(230,57,70,.25); }
+.btn-primary:hover { box-shadow:0 4px 20px rgba(230,57,70,.45); }
+.btn-ghost { background:rgba(255,255,255,.05); color:var(--text2); border:1px solid rgba(255,255,255,.07); }
+.btn-ghost:hover { background:rgba(255,255,255,.09); color:var(--text); }
+.btn-danger { background:rgba(230,57,70,.12); color:var(--accent); border:1px solid rgba(230,57,70,.25); }
+.btn-danger:hover { background:rgba(230,57,70,.22); }
+.btn-success { background:rgba(34,197,94,.12); color:var(--green); border:1px solid rgba(34,197,94,.25); }
+.btn-success:hover { background:rgba(34,197,94,.22); }
+.btn-cyan { background:rgba(6,182,212,.12); color:var(--cyan); border:1px solid rgba(6,182,212,.25); }
+.btn-cyan:hover { background:rgba(6,182,212,.22); }
+.btn-gold { background:rgba(245,158,11,.12); color:var(--gold); border:1px solid rgba(245,158,11,.25); }
+.btn-gold:hover { background:rgba(245,158,11,.22); }
+.btn-sm { padding:4px 9px; font-size:11px; }
+.btn-icon { padding:6px 8px; }
+.btn-full { width:100%; }
+
+/* ══ FORMS ══ */
+.form-group { margin-bottom:13px; }
+.form-label { font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text3); margin-bottom:5px; display:block; }
+.form-input { width:100%; padding:8px 11px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:var(--radius-sm); color:var(--text); font-size:13px; font-family:inherit; transition:var(--transition); outline:none; }
+.form-input:focus { border-color:rgba(230,57,70,.45); box-shadow:0 0 0 3px rgba(230,57,70,.08); }
+.form-input.small { padding:6px 9px; font-size:12px; }
+select.form-input { cursor:pointer; }
+option { background:var(--bg2); }
+textarea.form-input { resize:vertical; min-height:80px; font-family:'JetBrains Mono',monospace; font-size:12px; }
+.form-hint { font-size:10px; color:var(--text3); margin-top:4px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.form-check { display:flex; align-items:center; gap:8px; padding:8px 11px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius-sm); cursor:pointer; transition:var(--transition); }
+.form-check:hover { background:rgba(255,255,255,.06); }
+.form-check input { width:14px; height:14px; accent-color:var(--accent); }
+.form-check label { font-size:12px; font-weight:500; color:var(--text2); cursor:pointer; }
+
+/* ══ LOG ══ */
+.log-area { font-family:'JetBrains Mono',monospace; font-size:11.5px; line-height:1.65; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(230,57,70,.15) transparent; }
+.log-area::-webkit-scrollbar { width:3px; }
+.log-area::-webkit-scrollbar-thumb { background:rgba(230,57,70,.25); border-radius:3px; }
+.log-line { padding:1px 0; white-space:pre-wrap; word-break:break-all; }
+.log-time { color:var(--text3); margin-right:5px; font-size:10px; }
+.log-ok   { color:#4ade80; }
+.log-err  { color:var(--accent); }
+.log-warn { color:var(--gold); }
+.log-info { color:var(--text2); }
+
+/* ══ CMD BAR ══ */
+.cmd-bar { display:flex; gap:7px; }
+.cmd-input { flex:1; padding:9px 13px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:var(--radius-sm); color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:var(--transition); }
+.cmd-input:focus { border-color:rgba(230,57,70,.4); box-shadow:0 0 0 3px rgba(230,57,70,.07); }
+.cmd-pills { display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; }
+.cmd-pill { padding:3px 11px; background:rgba(230,57,70,.08); border:1px solid rgba(230,57,70,.18); border-radius:20px; font-size:11px; color:var(--accent); cursor:pointer; transition:var(--transition); font-family:'JetBrains Mono',monospace; }
+.cmd-pill:hover { background:rgba(230,57,70,.18); transform:translateY(-1px); }
+
+/* ══ SECTION HEADER ══ */
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.section-title { font-family:'Rajdhani',sans-serif; font-size:21px; font-weight:700; background:linear-gradient(135deg,#fff 30%,var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.section-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+.section-actions { display:flex; align-items:center; gap:7px; }
+
+/* ══ MODALS ══ */
+.modal-overlay { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.75); backdrop-filter:blur(10px); display:none; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; animation:fadeIn .18s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal { background:linear-gradient(145deg,rgba(18,26,46,.98),rgba(12,16,32,.98)); border:1px solid rgba(230,57,70,.18); border-radius:14px; padding:26px; min-width:360px; max-width:500px; width:92%; box-shadow:0 24px 60px rgba(0,0,0,.65); animation:slideUp .2s ease; }
+@keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.modal-wide { max-width:680px; }
+.modal h3 { font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+.modal-actions { display:flex; gap:8px; margin-top:18px; justify-content:flex-end; }
+.modal-close { position:absolute; right:14px; top:14px; background:none; border:none; color:var(--text3); font-size:18px; cursor:pointer; padding:4px; border-radius:4px; transition:var(--transition); }
+.modal-close:hover { color:var(--text); background:rgba(255,255,255,.05); }
+
+/* ══ TABS ══ */
+.tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,.06); margin-bottom:16px; }
+.tab { padding:8px 16px; font-size:12px; font-weight:600; color:var(--text3); cursor:pointer; border-bottom:2px solid transparent; transition:var(--transition); }
+.tab:hover { color:var(--text2); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* ══ TABLE GENERIC ══ */
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th { text-align:left; padding:8px 12px; font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text3); border-bottom:1px solid rgba(255,255,255,.05); }
+.data-table td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.03); font-size:12px; vertical-align:middle; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:rgba(255,255,255,.02); }
+
+/* ══ TOASTS ══ */
+.toast-wrap { position:fixed; bottom:22px; right:22px; z-index:2000; display:flex; flex-direction:column; gap:7px; }
+.toast { padding:9px 15px; border-radius:var(--radius-sm); font-size:12px; font-weight:600; animation:slideIn .25s ease; backdrop-filter:blur(16px); box-shadow:0 4px 20px rgba(0,0,0,.4); }
+@keyframes slideIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+.t-ok  { background:rgba(34,197,94,.12); color:var(--green); border:1px solid rgba(34,197,94,.25); }
+.t-err { background:rgba(230,57,70,.12); color:var(--accent); border:1px solid rgba(230,57,70,.25); }
+.t-inf { background:rgba(6,182,212,.1); color:var(--cyan); border:1px solid rgba(6,182,212,.2); }
+.t-warn{ background:rgba(245,158,11,.1); color:var(--gold); border:1px solid rgba(245,158,11,.2); }
+
+/* ══ MISC ══ */
+.loading-state { display:flex; align-items:center; justify-content:center; gap:9px; padding:28px; color:var(--text3); font-size:13px; }
+.spinner { width:16px; height:16px; border:2px solid rgba(230,57,70,.15); border-top-color:var(--accent); border-radius:50%; animation:rotate .65s linear infinite; }
+@keyframes rotate { to{transform:rotate(360deg)} }
+.empty-state { text-align:center; padding:40px 20px; color:var(--text3); }
+.empty-state-icon { font-size:40px; margin-bottom:12px; opacity:.5; }
+.empty-state-text { font-size:13px; }
+
+.hero-stats-bar { display:flex; background:rgba(255,255,255,.03); border-radius:var(--radius-sm); overflow:hidden; border:1px solid rgba(255,255,255,.05); }
+.hero-stat { flex:1; padding:11px 14px; border-right:1px solid rgba(255,255,255,.05); text-align:center; }
+.hero-stat:last-child { border-right:none; }
+.hero-stat-val { font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; line-height:1; }
+.hero-stat-lbl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-top:3px; }
+.col-green { color:var(--green); } .col-blue { color:var(--cyan); } .col-gold { color:var(--gold); } .col-red { color:var(--accent); } .col-purple { color:var(--purple); }
+
+.error-banner { display:flex; align-items:center; gap:11px; padding:13px 15px; background:rgba(230,57,70,.07); border:1px solid rgba(230,57,70,.18); border-radius:var(--radius-sm); font-size:12px; color:var(--text2); }
+.error-banner-icon { font-size:18px; flex-shrink:0; }
+
+.about-logo-big { position:relative; width:64px; height:64px; margin:0 auto 14px; }
+.about-logo-ring { position:absolute; inset:-3px; border-radius:18px; background:conic-gradient(from 0deg,var(--accent),var(--accent2),#ff1744,var(--accent2),var(--accent)); animation:spin 4s linear infinite; }
+.about-logo-ring::after { content:''; position:absolute; inset:2px; border-radius:16px; background:var(--bg2); }
+.about-logo-inner { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:28px; z-index:2; }
+
+.divider { height:1px; background:rgba(255,255,255,.05); margin:14px 0; }
+.mb-12 { margin-bottom:12px; } .mb-16 { margin-bottom:16px; } .mb-20 { margin-bottom:20px; }
+.gap-8 { gap:8px; } .flex { display:flex; align-items:center; }
+* { scrollbar-width:thin; scrollbar-color:rgba(230,57,70,.15) transparent; }
+
+/* Games farming progress */
+.game-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.game-row:last-child { border-bottom:none; }
+.game-name { flex:1; font-size:12px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.game-cards { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); min-width:60px; text-align:right; }
+.game-progress { width:80px; height:3px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; }
+.game-progress-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--gold),#fde68a); }
+
+/* Keys/Redeem */
+.key-result { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:6px; margin-bottom:5px; font-size:12px; }
+.key-ok   { background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.2); color:#4ade80; }
+.key-err  { background:rgba(230,57,70,.08); border:1px solid rgba(230,57,70,.2); color:var(--accent); }
+.key-dup  { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); color:var(--gold); }
+
+/* Config editor */
+.config-section { margin-bottom:20px; }
+.config-section-title { font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--text2); margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,.05); }
+
+/* Trade offers */
+.trade-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius-sm); padding:12px; margin-bottom:8px; }
+.trade-card:last-child { margin-bottom:0; }
+
+/* 2FA */
+.twofa-code { font-family:'JetBrains Mono',monospace; font-size:36px; font-weight:700; letter-spacing:8px; color:var(--cyan); text-align:center; padding:20px; background:rgba(6,182,212,.05); border:1px solid rgba(6,182,212,.15); border-radius:var(--radius); position:relative; overflow:hidden; }
+.twofa-timer { width:100%; height:3px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; margin-top:12px; }
+.twofa-timer-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--cyan),#a5f3fc); transition:width 1s linear; }
+
+/* FAB */
+#fab { display:none; position:fixed; bottom:22px; right:22px; width:50px; height:50px; border-radius:50%; font-size:20px; box-shadow:0 4px 20px rgba(230,57,70,.45); z-index:100; }
+
+/* ══ SEARCH BAR ══ */
+.search-bar { display:flex; gap:8px; margin-bottom:16px; align-items:center; }
+.search-input { flex:1; padding:8px 12px 8px 36px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:var(--radius-sm); color:var(--text); font-size:13px; font-family:inherit; outline:none; transition:var(--transition); position:relative; }
+.search-input:focus { border-color:rgba(230,57,70,.4); box-shadow:0 0 0 3px rgba(230,57,70,.07); }
+.search-wrap { position:relative; flex:1; }
+.search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:14px; pointer-events:none; }
+.filter-btn { padding:7px 13px; border-radius:var(--radius-sm); font-size:12px; font-weight:600; cursor:pointer; border:1px solid rgba(255,255,255,.07); background:rgba(255,255,255,.04); color:var(--text2); transition:var(--transition); white-space:nowrap; }
+.filter-btn:hover, .filter-btn.active { background:rgba(230,57,70,.15); border-color:rgba(230,57,70,.3); color:var(--accent); }
+
+/* ══ AUTO-REFRESH INDICATOR ══ */
+.refresh-indicator { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text3); }
+.refresh-dot { width:5px; height:5px; border-radius:50%; background:var(--green); animation:pulse 2s ease infinite; }
+.refresh-dot.loading { background:var(--gold); animation:rotate .8s linear infinite; border-radius:0; width:10px; height:10px; border:2px solid rgba(245,158,11,.2); border-top-color:var(--gold); }
+
+/* ══ NOTIFICATION BANNER ══ */
+.notif-banner { position:fixed; top:70px; right:16px; z-index:500; display:flex; flex-direction:column; gap:6px; max-width:320px; }
+.notif-item { background:rgba(12,16,32,.96); border:1px solid rgba(230,57,70,.25); border-radius:var(--radius); padding:12px 14px; display:flex; align-items:flex-start; gap:10px; animation:slideIn .3s ease; box-shadow:0 8px 24px rgba(0,0,0,.5); backdrop-filter:blur(16px); }
+.notif-icon { font-size:20px; flex-shrink:0; }
+.notif-body { flex:1; }
+.notif-title { font-weight:600; font-size:13px; margin-bottom:2px; }
+.notif-sub { font-size:11px; color:var(--text3); }
+.notif-close { color:var(--text3); cursor:pointer; font-size:16px; padding:0 2px; flex-shrink:0; }
+.notif-close:hover { color:var(--text); }
+
+/* ══ STATS PAGE ══ */
+.chart-container { position:relative; width:100%; }
+canvas { width:100% !important; }
+.chart-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+.chart-legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text2); }
+.chart-legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.stat-mini-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-bottom:16px; }
+.stat-mini { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.05); border-radius:var(--radius-sm); padding:12px; text-align:center; }
+.stat-mini-val { font-family:'Rajdhani',sans-serif; font-size:24px; font-weight:700; line-height:1; }
+.stat-mini-lbl { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-top:3px; }
+
+/* ══ MOBILE ══ */
+.mob-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:8; backdrop-filter:blur(4px); }
+#mobMenuBtn { display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; padding:4px; }
+#mobCloseBtn { display:none; }
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 260px; }
+  html, body { overflow: auto; height: auto; }
+  .layout { flex-direction: column; height: auto; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed; left: -280px; top: 0; bottom: 0; z-index: 20;
+    transition: left .25s cubic-bezier(.4,0,.2,1);
+    height: 100vh;
+  }
+  .sidebar.mob-open { left: 0; }
+  .mob-overlay.mob-open { display: block; }
+
+  .main { flex: 1; min-height: 100vh; }
+
+  .topbar { padding: 0 14px; position: sticky; top: 0; z-index: 15; }
+  #mobMenuBtn { display: block; }
+  .topbar-stat { display: none; }
+  .topbar-actions .btn { display: none; }
+  #addBotTopBtn { display: flex !important; }
+
+  .content { padding: 14px; overflow-y: auto; height: auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .grid-2, .grid-3, .grid-4, .grid-main-side { grid-template-columns: 1fr !important; }
+  .bots-grid { grid-template-columns: 1fr !important; }
+
+  #fab { bottom: 16px; right: 16px; width: 46px; height: 46px; font-size: 18px; }
+
+  .topbar-title { font-size: 16px; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .section-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon-wrap">
+      <div class="logo-ring"></div>
+      <div class="logo-icon">🦈</div>
+    </div>
+    <div>
+      <div class="logo-name">SHARKFARM</div>
+      <div class="logo-sub">Steam Farmer</div>
+    </div>
+  </div>
+
+  <div class="sidebar-status" id="sidebarStatus" onclick="showPage('settings')">
+    <div class="status-dot"></div>
+    <div>
+      <div class="status-text" id="statusText">Подключение…</div>
+      <div class="status-ver" id="statusVer">v—</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Обзор</div>
+    <button class="nav-item active" id="nav-dash" onclick="showPage('dash')">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" id="nav-stats" onclick="showPage('stats')">
+      <span class="nav-icon">📈</span> Статистика
+    </button>
+
+    <div class="nav-section">Управление</div>
+    <button class="nav-item" id="nav-bots" onclick="showPage('bots')">
+      <span class="nav-icon">🤖</span> Боты
+      <span class="nav-badge" id="botBadge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" id="nav-farming" onclick="showPage('farming')">
+      <span class="nav-icon">🌾</span> Фарминг
+    </button>
+    <button class="nav-item" id="nav-keys" onclick="showPage('keys')">
+      <span class="nav-icon">🔑</span> Ключи
+    </button>
+    <button class="nav-item" id="nav-trades" onclick="showPage('trades')">
+      <span class="nav-icon">🔄</span> Обмены
+    </button>
+
+    <div class="nav-section">Инструменты</div>
+    <button class="nav-item" id="nav-twofa" onclick="showPage('twofa')">
+      <span class="nav-icon">🔐</span> 2FA Auth
+    </button>
+    <button class="nav-item" id="nav-cmd" onclick="showPage('cmd')">
+      <span class="nav-icon">⌨️</span> Консоль
+    </button>
+    <button class="nav-item" id="nav-logs" onclick="showPage('logs')">
+      <span class="nav-icon">📋</span> Логи
+    </button>
+
+    <div class="nav-section">Система</div>
+    <button class="nav-item" id="nav-config" onclick="showPage('config')">
+      <span class="nav-icon">📝</span> Конфиг
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="showPage('settings')">
+      <span class="nav-icon">⚙️</span> Настройки
+    </button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="nav-item" onclick="refreshAll()">
+      <span class="nav-icon">🔄</span> Обновить
+    </button>
+    <button class="nav-item" onclick="confirmShutdown()" style="color:var(--accent);">
+      <span class="nav-icon">⏻</span> Shutdown
+    </button>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button id="mobMenuBtn" onclick="toggleMobMenu()">☰</button>
+    <div>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-sub" id="topbarSub">Обзор системы</div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <div class="refresh-indicator" id="refreshIndicator">
+        <div class="refresh-dot" id="refreshDot"></div>
+        <span id="refreshTime">—</span>
+      </div>
+      <div class="topbar-stat ts-green"><span>Онлайн</span><strong id="tb-online">—</strong></div>
+      <div class="topbar-stat ts-cyan"><span>Фармит</span><strong id="tb-farming">—</strong></div>
+      <div class="topbar-stat ts-gold"><span>Карточек</span><strong id="tb-cards">—</strong></div>
+      <button class="btn btn-primary btn-sm" id="addBotTopBtn" onclick="showPage('bots');openAddBot()">+ Добавить бота</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dash">
+      <div class="grid-4 mb-16">
+        <div class="stat-card sc-red">
+          <div class="stat-label">Ботов онлайн</div>
+          <div class="stat-val" id="st-online">—</div>
+          <div class="stat-sub">из <span id="st-total">—</span> всего</div>
+        </div>
+        <div class="stat-card sc-cyan">
+          <div class="stat-label">Фармит сейчас</div>
+          <div class="stat-val" id="st-farming">—</div>
+          <div class="stat-sub">активных ботов</div>
+        </div>
+        <div class="stat-card sc-gold">
+          <div class="stat-label">Карточек в очереди</div>
+          <div class="stat-val" id="st-cards">—</div>
+          <div class="stat-sub">осталось фармить</div>
+        </div>
+        <div class="stat-card sc-green">
+          <div class="stat-label">Аптайм UI</div>
+          <div class="stat-val" id="st-uptime" style="font-size:26px;padding-top:4px;">—</div>
+          <div class="stat-sub">с запуска</div>
+        </div>
+      </div>
+
+      <div class="grid-main-side">
+        <div>
+          <div class="card mb-16">
+            <div class="card-header">
+              <div class="card-title">🤖 Боты</div>
+              <div class="flex gap-8">
+                <button class="btn btn-success btn-sm" onclick="startAllBots()">▶ Все</button>
+                <button class="btn btn-danger btn-sm" onclick="stopAllBots()">⏹ Стоп</button>
+                <button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Все →</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="bot-table">
+                <thead><tr>
+                  <th style="width:42px;"></th>
+                  <th>Аккаунт</th>
+                  <th>Статус</th>
+                  <th>Игра</th>
+                  <th>Карточки</th>
+                  <th>Прогресс</th>
+                  <th style="width:110px;">Действия</th>
+                </tr></thead>
+                <tbody id="dashBotTable">
+                  <tr><td colspan="7"><div class="loading-state"><div class="spinner"></div>Загрузка…</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📋 Последние логи</div>
+              <div class="flex gap-8">
+                <button class="btn btn-ghost btn-sm" onclick="clearLog()">🗑</button>
+                <button class="btn btn-ghost btn-sm" onclick="showPage('logs')">Все →</button>
+              </div>
+            </div>
+            <div class="card-body" style="padding:10px;">
+              <div class="log-area" id="dashLog" style="height:200px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card mb-16" style="text-align:center;">
+            <div class="card-body">
+              <div class="about-logo-big" style="width:54px;height:54px;margin-bottom:10px;">
+                <div class="about-logo-ring"></div>
+                <div class="about-logo-inner" style="font-size:22px;">🦈</div>
+              </div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">SharkFarm</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px;" id="aboutVer">v—</div>
+              <div class="divider"></div>
+              <div class="hero-stats-bar">
+                <div class="hero-stat"><div class="hero-stat-val col-green" id="ds-active">—</div><div class="hero-stat-lbl">Онлайн</div></div>
+                <div class="hero-stat"><div class="hero-stat-val col-blue" id="ds-farming">—</div><div class="hero-stat-lbl">Фармит</div></div>
+                <div class="hero-stat"><div class="hero-stat-val col-gold" id="ds-total">—</div><div class="hero-stat-lbl">Всего</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">⚡ Быстрая команда</div></div>
+            <div class="card-body">
+              <div class="cmd-bar mb-12">
+                <input class="cmd-input" id="quickCmd" placeholder="status, farm, loot…" onkeydown="if(event.key==='Enter')sendQuickCmd()">
+                <button class="btn btn-primary btn-icon" onclick="sendQuickCmd()">↵</button>
+              </div>
+              <div class="cmd-pills">
+                <div class="cmd-pill" onclick="setQuickCmd('status')">status</div>
+                <div class="cmd-pill" onclick="setQuickCmd('farm')">farm</div>
+                <div class="cmd-pill" onclick="setQuickCmd('loot')">loot</div>
+                <div class="cmd-pill" onclick="setQuickCmd('2fa')">2fa</div>
+                <div class="cmd-pill" onclick="setQuickCmd('stop')">stop</div>
+                <div class="cmd-pill" onclick="setQuickCmd('restart')">restart</div>
+              </div>
+              <div class="log-area" id="quickOut" style="height:100px;margin-top:10px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">🎮 Управление</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:7px;">
+              <button class="btn btn-success btn-full" onclick="startAllBots()">▶ Запустить всех</button>
+              <button class="btn btn-danger btn-full" onclick="stopAllBots()">⏹ Остановить всех</button>
+              <button class="btn btn-gold btn-full" onclick="lootAll()">💰 Loot всех</button>
+              <button class="btn btn-ghost btn-full" onclick="refreshAll()">🔄 Обновить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BOTS PAGE ══ -->
+    <div class="page" id="page-bots">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Управление ботами</div>
+          <div class="section-sub">Запуск, остановка и мониторинг аккаунтов</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-success" onclick="startAllBots()">▶ Запустить всех</button>
+          <button class="btn btn-danger" onclick="stopAllBots()">⏹ Остановить всех</button>
+          <button class="btn btn-primary" onclick="openAddBot()">+ Добавить бота</button>
+        </div>
+      </div>
+      <!-- Search & Filter -->
+      <div class="search-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="botSearch" placeholder="Поиск по имени бота…" oninput="filterBots()">
+        </div>
+        <button class="filter-btn active" id="filter-all" onclick="setFilter('all',this)">Все</button>
+        <button class="filter-btn" id="filter-online" onclick="setFilter('online',this)">🟢 Онлайн</button>
+        <button class="filter-btn" id="filter-farming" onclick="setFilter('farming',this)">🎮 Фармит</button>
+        <button class="filter-btn" id="filter-offline" onclick="setFilter('offline',this)">⚫ Офлайн</button>
+      </div>
+      <div class="bots-grid" id="fullBotList">
+        <div class="loading-state"><div class="spinner"></div>Загрузка ботов…</div>
+      </div>
+    </div>
+
+    <!-- ══ FARMING PAGE ══ -->
+    <div class="page" id="page-farming">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Статус фарминга</div>
+          <div class="section-sub">Игры и карточки в очереди</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ghost" onclick="loadFarming()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div id="farmingContent">
+        <div class="loading-state"><div class="spinner"></div>Загрузка…</div>
+      </div>
+    </div>
+
+    <!-- ══ KEYS PAGE ══ -->
+    <div class="page" id="page-keys">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Активация ключей</div>
+          <div class="section-sub">Redeem Steam ключей через API</div>
+        </div>
+      </div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">🔑 Ввод ключей</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="form-label">Целевой бот</div>
+                <select class="form-input" id="keyBotSel">
+                  <option value="">— Все боты —</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <div class="form-label">Ключи (каждый с новой строки)</div>
+                <textarea class="form-input" id="keysInput" placeholder="XXXXX-XXXXX-XXXXX&#10;XXXXX-XXXXX-XXXXX" style="height:140px;"></textarea>
+              </div>
+              <button class="btn btn-primary btn-full" style="height:42px;" onclick="redeemKeys()">🔑 Активировать</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">⚙️ Параметры</div></div>
+            <div class="card-body">
+              <div class="form-check mb-12">
+                <input type="checkbox" id="keyDistribute" checked>
+                <label for="keyDistribute">Distribute — распределять по ботам</label>
+              </div>
+              <div class="form-check mb-12">
+                <input type="checkbox" id="keyKeepMissingGames">
+                <label for="keyKeepMissingGames">KeepMissingGames — пропускать отсутствующие</label>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" id="keySkipMissingGames">
+                <label for="keySkipMissingGames">SkipMissingGames — пропускать</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Результат</div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('keyResults').innerHTML=''">🗑 Очистить</button>
+          </div>
+          <div class="card-body" id="keyResults" style="min-height:300px;">
+            <div class="empty-state">
+              <div class="empty-state-icon">🔑</div>
+              <div class="empty-state-text">Результаты появятся здесь</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TRADES PAGE ══ -->
+    <div class="page" id="page-trades">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Управление обменами</div>
+          <div class="section-sub">Входящие и исходящие трейд-офферы</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ghost" onclick="loadTrades()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTradeTab('incoming',this)">📥 Входящие</div>
+        <div class="tab" onclick="switchTradeTab('outgoing',this)">📤 Исходящие</div>
+        <div class="tab" onclick="switchTradeTab('blacklist',this)">🚫 Чёрный список</div>
+      </div>
+      <div id="tradesIncoming">
+        <div class="loading-state"><div class="spinner"></div>Загрузка обменов…</div>
+      </div>
+      <div id="tradesOutgoing" style="display:none;"></div>
+      <div id="tradesBlacklist" style="display:none;"></div>
+    </div>
+
+    <!-- ══ 2FA PAGE ══ -->
+    <div class="page" id="page-twofa">
+      <div class="section-header">
+        <div>
+          <div class="section-title">2FA Аутентификатор</div>
+          <div class="section-sub">Коды подтверждения Steam Guard</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ghost" onclick="load2FA()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div id="twoFAContent">
+        <div class="loading-state"><div class="spinner"></div>Загрузка…</div>
+      </div>
+    </div>
+
+    <!-- ══ CONSOLE PAGE ══ -->
+    <div class="page" id="page-cmd">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Командная консоль</div>
+          <div class="section-sub">Прямое взаимодействие с SharkFarm API</div>
+        </div>
+        <button class="btn btn-ghost" onclick="document.getElementById('cmdOut').innerHTML=''">🗑 Очистить</button>
+      </div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">⌨️ Команда</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="form-label">Целевой бот</div>
+                <select class="form-input" id="cmdBotSel">
+                  <option value="">— SharkFarm (все) —</option>
+                </select>
+              </div>
+              <div class="cmd-bar mb-12">
+                <input class="cmd-input" id="cmdInput" placeholder="Введите команду…" onkeydown="if(event.key==='Enter')sendCmd()">
+                <button class="btn btn-primary" style="padding:0 16px;height:40px;" onclick="sendCmd()">↵</button>
+              </div>
+              <div class="cmd-pills">
+                <div class="cmd-pill" onclick="setCmd('status')">status</div>
+                <div class="cmd-pill" onclick="setCmd('farm')">farm</div>
+                <div class="cmd-pill" onclick="setCmd('stop')">stop</div>
+                <div class="cmd-pill" onclick="setCmd('restart')">restart</div>
+                <div class="cmd-pill" onclick="setCmd('2fa')">2fa</div>
+                <div class="cmd-pill" onclick="setCmd('loot')">loot</div>
+                <div class="cmd-pill" onclick="setCmd('exit')">exit</div>
+                <div class="cmd-pill" onclick="setCmd('redeem')">redeem</div>
+                <div class="cmd-pill" onclick="setCmd('addlicense')">addlicense</div>
+                <div class="cmd-pill" onclick="setCmd('rejoinchat')">rejoinchat</div>
+                <div class="cmd-pill" onclick="setCmd('level')">level</div>
+                <div class="cmd-pill" onclick="setCmd('nickname')">nickname</div>
+                <div class="cmd-pill" onclick="setCmd('owns')">owns</div>
+                <div class="cmd-pill" onclick="setCmd('play')">play</div>
+                <div class="cmd-pill" onclick="setCmd('reset')">reset</div>
+                <div class="cmd-pill" onclick="setCmd('unpack')">unpack</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">💬 Вывод</div></div>
+          <div class="card-body" style="padding:10px;">
+            <div class="log-area" id="cmdOut" style="height:480px;">
+              <div class="log-line"><span class="log-ok">[SF]</span> Консоль готова. Введи команду.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LOGS PAGE ══ -->
+    <div class="page" id="page-logs">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Журнал событий</div>
+          <div class="section-sub">Последние 200 строк лога SharkFarm</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ghost" onclick="scrollLog()">↓ В конец</button>
+          <button class="btn btn-ghost" onclick="clearLog()">🗑 Очистить</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:10px;">
+          <div class="log-area" id="fullLog" style="height:calc(100vh - 210px);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONFIG PAGE ══ -->
+    <div class="page" id="page-config">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Редактор конфигурации</div>
+          <div class="section-sub">Настройка ASF и ботов</div>
+        </div>
+        <div class="section-actions">
+          <select class="form-input small" id="configBotSel" onchange="loadBotConfig()" style="width:180px;">
+            <option value="__asf">ASF (глобальный)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">⚙️ Основные параметры</div></div>
+            <div class="card-body" id="configMain">
+              <div class="loading-state"><div class="spinner"></div>Загрузка…</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">📄 JSON редактор</div></div>
+            <div class="card-body">
+              <textarea class="form-input" id="configJson" style="height:320px;font-size:11px;" placeholder="{}"></textarea>
+              <div style="display:flex;gap:7px;margin-top:10px;">
+                <button class="btn btn-primary" onclick="saveConfig()" style="flex:1;">💾 Сохранить</button>
+                <button class="btn btn-ghost" onclick="loadBotConfig()">↺ Сбросить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS PAGE ══ -->
+    <div class="page" id="page-settings">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Настройки</div>
+          <div class="section-sub">Подключение и параметры интерфейса</div>
+        </div>
+      </div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <div class="card mb-16">
+            <div class="card-header"><div class="card-title">🔌 API Подключение</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="form-label">Хост</div>
+                <input class="form-input" id="sHost" placeholder="localhost">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Порт</div>
+                <input class="form-input" id="sPort" type="number" placeholder="1242">
+              </div>
+              <div class="form-group">
+                <div class="form-label">IPCPassword (если задан)</div>
+                <input class="form-input" id="sPass" type="password" placeholder="••••••••">
+              </div>
+              <button class="btn btn-primary btn-full" style="height:42px;" onclick="saveSettings()">💾 Сохранить</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">⚡ Опасная зона</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-gold btn-full" onclick="restartASF()">🔄 Перезапустить SharkFarm</button>
+              <button class="btn btn-danger btn-full" onclick="confirmShutdown()">⏻ Выключить SharkFarm</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">🦈 О программе</div></div>
+          <div class="card-body" style="text-align:center;">
+            <div class="about-logo-big">
+              <div class="about-logo-ring"></div>
+              <div class="about-logo-inner">🦈</div>
+            </div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;">SharkFarm</div>
+            <div style="font-size:12px;color:var(--text3);margin:5px 0 16px;" id="aboutVer2">Desktop WebUI</div>
+            <div class="divider"></div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8;text-align:left;">
+              <div>🦈 Форк ArchiSteamFarm</div>
+              <div>🎨 Кастомный WebUI</div>
+              <div>⚡ .NET 10 · win-x64</div>
+              <div style="margin-top:10px;">
+                <span id="aboutBuildInfo" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);"></span>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div style="display:flex;gap:8px;justify-content:center;">
+              <a class="btn btn-ghost" href="https://github.com/sistemkol1/SharkFarm" target="_blank">GitHub</a>
+              <a class="btn btn-cyan" href="https://github.com/sistemkol1/SharkFarm/releases" target="_blank">Релизы</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STATS PAGE ══ -->
+    <div class="page" id="page-stats">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Статистика</div>
+          <div class="section-sub">Данные фарминга и активности ботов</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ghost" onclick="loadStats()">🔄 Обновить</button>
+        </div>
+      </div>
+
+      <!-- Mini stats row -->
+      <div class="stat-mini-row" id="statsMiniRow">
+        <div class="stat-mini"><div class="stat-mini-val col-gold" id="sTotal-cards">—</div><div class="stat-mini-lbl">Карточек всего</div></div>
+        <div class="stat-mini"><div class="stat-mini-val col-blue" id="sTotal-games">—</div><div class="stat-mini-lbl">Игр в очереди</div></div>
+        <div class="stat-mini"><div class="stat-mini-val col-green" id="sTotal-online">—</div><div class="stat-mini-lbl">Ботов онлайн</div></div>
+        <div class="stat-mini"><div class="stat-mini-val col-red" id="sTotal-bots">—</div><div class="stat-mini-lbl">Ботов всего</div></div>
+        <div class="stat-mini"><div class="stat-mini-val col-purple" id="sTotal-farming">—</div><div class="stat-mini-lbl">Фармит сейчас</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="sTotal-uptime">—</div><div class="stat-mini-lbl">Аптайм UI</div></div>
+      </div>
+
+      <div class="grid-2 mb-16">
+        <!-- Cards per bot chart -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🃏 Карточки по ботам</div></div>
+          <div class="card-body">
+            <div class="chart-container" style="height:220px;">
+              <canvas id="chartCards"></canvas>
+            </div>
+          </div>
+        </div>
+        <!-- Bot status pie -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🤖 Статусы ботов</div></div>
+          <div class="card-body">
+            <div class="chart-container" style="height:220px;">
+              <canvas id="chartStatus"></canvas>
+            </div>
+            <div class="chart-legend" id="statusLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Games per bot -->
+      <div class="card mb-16">
+        <div class="card-header"><div class="card-title">🎮 Игр в очереди по ботам</div></div>
+        <div class="card-body">
+          <div class="chart-container" style="height:180px;">
+            <canvas id="chartGames"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bot activity table -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Детали по ботам</div></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr>
+              <th>Бот</th><th>Статус</th><th>Карточек</th><th>Игр</th><th>Уровень</th><th>SteamID</th>
+            </tr></thead>
+            <tbody id="statsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- Mobile overlay -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobMenu()"></div>
+
+<!-- Notification banners -->
+<div class="notif-banner" id="notifBanner"></div>
+
+<!-- FAB -->
+<button class="btn btn-primary" id="fab" onclick="openAddBot()">+</button>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Add Bot -->
+<div class="modal-overlay" id="modalAddBot" onclick="if(event.target===this)closeModal('modalAddBot')">
+  <div class="modal modal-wide">
+    <h3>🤖 Добавить бота</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Имя бота *</div>
+        <input class="form-input" id="nb-name" placeholder="MyBot">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Steam логин *</div>
+        <input class="form-input" id="nb-login" placeholder="steam_username">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Пароль Steam</div>
+        <input class="form-input" id="nb-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Активен</div>
+        <select class="form-input" id="nb-en">
+          <option value="true">Да</option>
+          <option value="false">Нет</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">SteamParentalCode</div>
+        <input class="form-input" id="nb-parental" placeholder="0000 (если есть)">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Loot при простое</div>
+        <select class="form-input" id="nb-loot">
+          <option value="false">Нет</option>
+          <option value="true">Да</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddBot')">Отмена</button>
+      <button class="btn btn-primary" onclick="addBot()">🤖 Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bot Details -->
+<div class="modal-overlay" id="modalBotDetails" onclick="if(event.target===this)closeModal('modalBotDetails')">
+  <div class="modal modal-wide">
+    <h3 id="botDetailTitle">🤖 Бот</h3>
+    <div id="botDetailContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalBotDetails')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shutdown -->
+<div class="modal-overlay" id="modalShutdown" onclick="if(event.target===this)closeModal('modalShutdown')">
+  <div class="modal">
+    <h3>⏻ Выключить SharkFarm?</h3>
+    <p style="font-size:13px;color:var(--text2);">Все боты будут остановлены. Продолжить?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalShutdown')">Отмена</button>
+      <button class="btn btn-danger" onclick="doShutdown()">Выключить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Restart -->
+<div class="modal-overlay" id="modalRestart" onclick="if(event.target===this)closeModal('modalRestart')">
+  <div class="modal">
+    <h3>🔄 Перезапустить SharkFarm?</h3>
+    <p style="font-size:13px;color:var(--text2);">SharkFarm будет перезапущен. Продолжить?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalRestart')">Отмена</button>
+      <button class="btn btn-gold" onclick="doRestart()">Перезапустить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ══ CONFIG ══
+let API_HOST = localStorage.getItem('sf_host') || 'localhost';
+let API_PORT = localStorage.getItem('sf_port') || '1242';
+let API_PASS = localStorage.getItem('sf_pass') || '';
+let BASE = () => `http://${API_HOST}:${API_PORT}/Api`;
+let startTs = Date.now();
+let botsCache = {};
+let connected = false;
+let twoFAInterval = null;
+let botFilter = 'all';
+let lastRefresh = null;
+let prevFarmingBots = new Set();
+let notifEnabled = false;
+
+const PAGE_TITLES = {
+  dash:     ['Dashboard', 'Обзор системы'],
+  stats:    ['Статистика', 'Данные фарминга и активности'],
+  bots:     ['Боты', 'Управление аккаунтами'],
+  farming:  ['Фарминг', 'Игры и карточки'],
+  keys:     ['Ключи', 'Активация Steam ключей'],
+  trades:   ['Обмены', 'Трейд-офферы'],
+  twofa:    ['2FA Auth', 'Steam Guard коды'],
+  cmd:      ['Консоль', 'Командный интерфейс'],
+  logs:     ['Логи', 'Журнал событий'],
+  config:   ['Конфиг', 'Редактор конфигурации'],
+  settings: ['Настройки', 'Конфигурация подключения'],
+};
+
+// ══ MOBILE MENU ══
+function toggleMobMenu() {
+  document.querySelector('.sidebar').classList.toggle('mob-open');
+  document.getElementById('mobOverlay').classList.toggle('mob-open');
+}
+function closeMobMenu() {
+  document.querySelector('.sidebar').classList.remove('mob-open');
+  document.getElementById('mobOverlay').classList.remove('mob-open');
+}
+
+// ══ NAV ══
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id)?.classList.add('active');
+  document.getElementById('nav-' + id)?.classList.add('active');
+  document.getElementById('fab').style.display = id === 'bots' ? 'flex' : 'none';
+  const [title, sub] = PAGE_TITLES[id] || [id, ''];
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('topbarSub').textContent = sub;
+  if (id === 'settings') fillSettings();
+  if (id === 'logs') { loadLog(); setTimeout(scrollLog, 100); }
+  if (id === 'farming') loadFarming();
+  if (id === 'trades') loadTrades();
+  if (id === 'twofa') load2FA();
+  if (id === 'config') { loadConfigBotList(); loadBotConfig(); }
+  if (id === 'stats') loadStats();
+  if (twoFAInterval && id !== 'twofa') { clearInterval(twoFAInterval); twoFAInterval = null; }
+  closeMobMenu();
+}
+
+// ══ API ══
+async function api(path, method = 'GET', body = null) {
+  const h = { 'Content-Type': 'application/json' };
+  if (API_PASS) h['Authentication'] = API_PASS;
+  const opts = { method, headers: h };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(BASE() + path, opts);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+// ══ STATUS ══
+function setConnected(ok) {
+  connected = ok;
+  const s = document.getElementById('sidebarStatus');
+  s.className = 'sidebar-status' + (ok ? '' : ' offline');
+  document.getElementById('statusText').textContent = ok ? 'Online' : 'Offline';
+}
+
+// ══ REFRESH INDICATOR ══
+function setRefreshLoading(loading) {
+  const dot = document.getElementById('refreshDot');
+  if (!dot) return;
+  dot.className = 'refresh-dot' + (loading ? ' loading' : '');
+}
+function updateRefreshTime() {
+  const el = document.getElementById('refreshTime');
+  if (!el || !lastRefresh) return;
+  const s = Math.floor((Date.now() - lastRefresh) / 1000);
+  el.textContent = s < 60 ? `${s}с назад` : `${Math.floor(s/60)}м назад`;
+}
+
+// ══ NOTIFICATIONS ══
+async function requestNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    const perm = await Notification.requestPermission();
+    notifEnabled = perm === 'granted';
+  } else {
+    notifEnabled = Notification.permission === 'granted';
+  }
+}
+
+function showNotif(title, body, icon = '🦈') {
+  // In-app notification banner
+  const banner = document.getElementById('notifBanner');
+  const item = document.createElement('div');
+  item.className = 'notif-item';
+  item.innerHTML = `<div class="notif-icon">${icon}</div><div class="notif-body"><div class="notif-title">${esc(title)}</div><div class="notif-sub">${esc(body)}</div></div><div class="notif-close" onclick="this.parentElement.remove()">×</div>`;
+  banner.appendChild(item);
+  setTimeout(() => item.remove(), 8000);
+
+  // Browser notification
+  if (notifEnabled && document.hidden) {
+    new Notification('SharkFarm: ' + title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><text y="14" font-size="14">🦈</text></svg>' });
+  }
+}
+
+function checkFarmingNotifications(names) {
+  // Detect bots that stopped farming
+  const currentFarming = new Set(names.filter(n => (botsCache[n]?.CardsFarmer?.CurrentGamesFarming?.length || 0) > 0));
+  prevFarmingBots.forEach(name => {
+    if (!currentFarming.has(name) && botsCache[name]) {
+      const cards = cardsRemaining(botsCache[name]);
+      if (cards === 0) {
+        showNotif('Фарминг завершён!', `Бот ${name} закончил фармить карточки`, '🎉');
+      }
+    }
+  });
+  prevFarmingBots = currentFarming;
+}
+
+// ══ BOT SEARCH & FILTER ══
+let currentBotFilter = 'all';
+
+function setFilter(filter, btn) {
+  currentBotFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFilteredBots();
+}
+
+function filterBots() { renderFilteredBots(); }
+
+function renderFilteredBots() {
+  const search = (document.getElementById('botSearch')?.value || '').toLowerCase();
+  const names = Object.keys(botsCache);
+  const filtered = names.filter(n => {
+    if (search && !n.toLowerCase().includes(search)) return false;
+    const bot = botsCache[n];
+    const cls = botClass(bot);
+    if (currentBotFilter === 'online'  && cls !== 'bc-online' && cls !== 'bc-farming') return false;
+    if (currentBotFilter === 'farming' && cls !== 'bc-farming') return false;
+    if (currentBotFilter === 'offline' && cls !== 'bc-offline' && cls !== 'bc-idle') return false;
+    return true;
+  });
+  const el = document.getElementById('fullBotList');
+  if (!el) return;
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Ничего не найдено</div></div>`;
+  } else {
+    el.innerHTML = filtered.map(n => renderBotCard(n, botsCache[n])).join('');
+  }
+}
+
+// ══ BOT HELPERS ══
+function botClass(bot) {
+  if (!bot.KeepRunning) return 'bc-offline';
+  if ((bot.CardsFarmer?.CurrentGamesFarming?.length || 0) > 0) return 'bc-farming';
+  if (bot.IsConnectedAndLoggedOn) return 'bc-online';
+  return 'bc-idle';
+}
+function botStatusBadge(bot) {
+  const c = botClass(bot);
+  const map = { 'bc-online':['sb-online','🟢 Онлайн'], 'bc-farming':['sb-farming','🎮 Фармит'], 'bc-idle':['sb-idle','🟡 Ожидание'], 'bc-offline':['sb-offline','⚫ Оффлайн'] };
+  const [cls, label] = map[c];
+  return `<span class="status-badge ${cls}">${label}</span>`;
+}
+function botRingClass(bot) {
+  return { 'bc-online':'ring-online','bc-farming':'ring-farming','bc-idle':'ring-idle','bc-offline':'' }[botClass(bot)];
+}
+function cardsRemaining(bot) {
+  return bot.CardsFarmer?.GamesToFarm?.reduce((a, g) => a + (g.CardsRemaining || 0), 0) || 0;
+}
+function currentGame(bot) {
+  const g = bot.CardsFarmer?.CurrentGamesFarming;
+  if (!g || g.length === 0) return '—';
+  return g.map(x => x.GameName || `App ${x.AppID}`).join(', ');
+}
+
+// ══ RENDER BOT ROW ══
+function renderBotRow(name, bot) {
+  const cls = botClass(bot);
+  const ring = botRingClass(bot);
+  const cards = cardsRemaining(bot);
+  const game = currentGame(bot);
+  const maxCards = bot.CardsFarmer?.GamesToFarm?.reduce((a,g)=>a+(g.CardsRemaining||0)+(g.CardsDropped||0),0)||0;
+  const pct = maxCards > 0 ? Math.round((1 - cards/maxCards)*100) : 0;
+  return `<tr>
+    <td><div class="bot-avatar-sm">
+      ${ring ? `<div class="bot-ring-sm ${ring}"></div>` : ''}
+      <span style="position:relative;z-index:2;">🤖</span>
+    </div></td>
+    <td><div class="bot-name-cell">${esc(name)}</div></td>
+    <td>${botStatusBadge(bot)}</td>
+    <td><div class="bot-game-cell">${esc(game)}</div></td>
+    <td><span style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:12px;">${cards || '—'}</span></td>
+    <td><div class="progress-mini"><div class="progress-mini-fill" style="width:${pct}%"></div></div></td>
+    <td>
+      <div class="flex gap-8">
+        <button class="btn btn-success btn-sm btn-icon" onclick="resumeBot('${esc(name)}')" title="Запустить">▶</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="pauseBot('${esc(name)}')" title="Пауза">⏸</button>
+        <button class="btn btn-cyan btn-sm btn-icon" onclick="showBotDetails('${esc(name)}')" title="Детали">🔍</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+// ══ RENDER BOT CARD ══
+function renderBotCard(name, bot) {
+  const cls = botClass(bot);
+  const ring = botRingClass(bot);
+  const cards = cardsRemaining(bot);
+  const game = currentGame(bot);
+  return `<div class="bot-card-full ${cls}">
+    <div class="bot-card-top"></div>
+    <div class="bot-card-body">
+      <div class="bot-avatar-lg">
+        <div class="bot-ring-lg"></div>
+        <span style="position:relative;z-index:2;">🤖</span>
+      </div>
+      <div class="bot-info">
+        <div class="bot-name-lg">${esc(name)}</div>
+        <div class="bot-detail-lg">${esc(game)}</div>
+        <div style="margin-top:5px;">${botStatusBadge(bot)}</div>
+      </div>
+    </div>
+    <div class="bot-card-stats">
+      <div class="bot-stat-mini">
+        <div class="bot-stat-mini-val" style="color:var(--gold);">${cards || '0'}</div>
+        <div class="bot-stat-mini-lbl">Карточек</div>
+      </div>
+      <div class="bot-stat-mini">
+        <div class="bot-stat-mini-val" style="color:var(--cyan);">${(bot.CardsFarmer?.GamesToFarm?.length || 0)}</div>
+        <div class="bot-stat-mini-lbl">Игр</div>
+      </div>
+      <div class="bot-stat-mini">
+        <div class="bot-stat-mini-val" style="color:var(--purple);">${bot.SteamLevel || '—'}</div>
+        <div class="bot-stat-mini-lbl">Уровень</div>
+      </div>
+    </div>
+    <div class="bot-card-footer" style="margin-top:10px;">
+      <button class="btn btn-success btn-sm" style="flex:1;" onclick="resumeBot('${esc(name)}')">▶ Старт</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="pauseBot('${esc(name)}')">⏸ Пауза</button>
+      <button class="btn btn-cyan btn-sm btn-icon" onclick="showBotDetails('${esc(name)}')">🔍</button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteBot('${esc(name)}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ══ LOAD BOTS ══
+async function loadBots() {
+  setRefreshLoading(true);
+  try {
+    const res = await api('/Bot/ASF');
+    if (!res?.Result) { setConnected(false); return; }
+    setConnected(true);
+    botsCache = res.Result;
+    lastRefresh = Date.now();
+    const names = Object.keys(botsCache);
+    const active  = names.filter(n => botsCache[n].IsConnectedAndLoggedOn).length;
+    const farming = names.filter(n => (botsCache[n].CardsFarmer?.CurrentGamesFarming?.length||0)>0).length;
+    const cards   = names.reduce((a,n)=>a+cardsRemaining(botsCache[n]),0);
+
+    document.getElementById('tb-online').textContent  = active;
+    document.getElementById('tb-farming').textContent = farming;
+    document.getElementById('tb-cards').textContent   = cards || '—';
+    document.getElementById('st-online').textContent  = active;
+    document.getElementById('st-total').textContent   = names.length;
+    document.getElementById('st-farming').textContent = farming;
+    document.getElementById('st-cards').textContent   = cards || '—';
+    document.getElementById('ds-active').textContent  = active;
+    document.getElementById('ds-farming').textContent = farming;
+    document.getElementById('ds-total').textContent   = names.length;
+
+    // Stats page mini counters
+    const se = id => document.getElementById(id);
+    if(se('sTotal-cards'))   se('sTotal-cards').textContent  = cards || '0';
+    if(se('sTotal-games'))   se('sTotal-games').textContent  = names.reduce((a,n)=>a+(botsCache[n].CardsFarmer?.GamesToFarm?.length||0),0);
+    if(se('sTotal-online'))  se('sTotal-online').textContent = active;
+    if(se('sTotal-bots'))    se('sTotal-bots').textContent   = names.length;
+    if(se('sTotal-farming')) se('sTotal-farming').textContent= farming;
+
+    const badge = document.getElementById('botBadge');
+    badge.textContent = names.length;
+    badge.style.display = names.length ? 'inline' : 'none';
+
+    const noBots = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🤖</div><div class="empty-state-text">Нет ботов. Нажми + чтобы добавить.</div></div></td></tr>`;
+    document.getElementById('dashBotTable').innerHTML = names.length ? names.map(n=>renderBotRow(n,botsCache[n])).join('') : noBots;
+
+    renderFilteredBots();
+
+    const botOptions = '<option value="">— SharkFarm (все) —</option>' + names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    ['cmdBotSel','keyBotSel'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=botOptions; });
+
+    checkFarmingNotifications(names);
+
+  } catch {
+    setConnected(false);
+    const err = `<tr><td colspan="7"><div class="error-banner" style="margin:10px;"><div class="error-banner-icon">⚡</div><div>Нет подключения к SharkFarm.<br><span style="font-size:10px;">Проверь что SharkFarm запущен на ${API_HOST}:${API_PORT}</span></div><button class="btn btn-ghost btn-sm" onclick="showPage('settings')" style="margin-left:auto;">Настройки</button></div></td></tr>`;
+    document.getElementById('dashBotTable').innerHTML = err;
+  } finally {
+    setRefreshLoading(false);
+  }
+}
+
+// ══ STATS ══
+let chartsInitialized = false;
+let chartCards, chartStatus, chartGames;
+
+async function loadStats() {
+  const names = Object.keys(botsCache);
+  if (!names.length) return;
+
+  // Update stats table
+  const tbody = document.getElementById('statsTable');
+  if (tbody) {
+    tbody.innerHTML = names.map(n => {
+      const bot = botsCache[n];
+      return `<tr>
+        <td><strong style="font-family:'Rajdhani',sans-serif;">${esc(n)}</strong></td>
+        <td>${botStatusBadge(bot)}</td>
+        <td style="color:var(--gold);font-family:'JetBrains Mono',monospace;">${cardsRemaining(bot)}</td>
+        <td style="color:var(--cyan);">${bot.CardsFarmer?.GamesToFarm?.length||0}</td>
+        <td style="color:var(--purple);">${bot.SteamLevel||'—'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);">${bot.SteamID||'—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Draw charts using Canvas API (no external libs)
+  drawBarChart('chartCards', names, names.map(n=>cardsRemaining(botsCache[n])), '#f59e0b', 'Карточек');
+  drawBarChart('chartGames', names, names.map(n=>botsCache[n].CardsFarmer?.GamesToFarm?.length||0), '#06b6d4', 'Игр');
+
+  // Status pie
+  const online  = names.filter(n=>botClass(botsCache[n])==='bc-online').length;
+  const farming = names.filter(n=>botClass(botsCache[n])==='bc-farming').length;
+  const idle    = names.filter(n=>botClass(botsCache[n])==='bc-idle').length;
+  const offline = names.filter(n=>botClass(botsCache[n])==='bc-offline').length;
+  drawPieChart('chartStatus', ['Онлайн','Фармит','Ожидание','Офлайн'], [online,farming,idle,offline], ['#22c55e','#06b6d4','#f59e0b','#475569']);
+
+  const legend = document.getElementById('statusLegend');
+  if (legend) {
+    legend.innerHTML = [
+      {l:'Онлайн',c:'#22c55e',v:online},
+      {l:'Фармит',c:'#06b6d4',v:farming},
+      {l:'Ожидание',c:'#f59e0b',v:idle},
+      {l:'Офлайн',c:'#475569',v:offline}
+    ].map(x=>`<div class="chart-legend-item"><div class="chart-legend-dot" style="background:${x.c}"></div>${x.l}: <strong>${x.v}</strong></div>`).join('');
+  }
+}
+
+function drawBarChart(canvasId, labels, values, color, label) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 400;
+  const H = canvas.offsetHeight || 220;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const pad = { t:20, r:16, b:40, l:44 };
+  const chartW = W - pad.l - pad.r;
+  const chartH = H - pad.t - pad.b;
+  const max = Math.max(...values, 1);
+  const barW = Math.max(8, chartW / Math.max(labels.length, 1) - 6);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + chartH - (chartH * i / 4);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + chartW, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(148,163,184,0.5)';
+    ctx.font = '10px Inter';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(max * i / 4), pad.l - 6, y + 3);
+  }
+
+  // Bars
+  labels.forEach((lbl, i) => {
+    const v = values[i] || 0;
+    const x = pad.l + (chartW / labels.length) * i + (chartW / labels.length - barW) / 2;
+    const barH = (v / max) * chartH;
+    const y = pad.t + chartH - barH;
+
+    // Bar gradient
+    const grad = ctx.createLinearGradient(0, y, 0, y + barH);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, color + '44');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, [3, 3, 0, 0]);
+    ctx.fill();
+
+    // Value on top
+    if (v > 0) {
+      ctx.fillStyle = color;
+      ctx.font = 'bold 10px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(v, x + barW/2, y - 4);
+    }
+
+    // Label
+    ctx.fillStyle = 'rgba(148,163,184,0.7)';
+    ctx.font = '10px Inter';
+    ctx.textAlign = 'center';
+    const shortLbl = lbl.length > 8 ? lbl.slice(0, 7) + '…' : lbl;
+    ctx.fillText(shortLbl, x + barW/2, H - pad.b + 14);
+  });
+}
+
+function drawPieChart(canvasId, labels, values, colors) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 280;
+  const H = canvas.offsetHeight || 220;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const total = values.reduce((a,b) => a+b, 0) || 1;
+  const cx = W/2, cy = H/2, r = Math.min(W, H) / 2 - 20;
+  let startAngle = -Math.PI / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  values.forEach((v, i) => {
+    if (!v) return;
+    const slice = (v / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + slice);
+    ctx.closePath();
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(6,8,15,0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    const midAngle = startAngle + slice / 2;
+    const lx = cx + Math.cos(midAngle) * r * 0.65;
+    const ly = cy + Math.sin(midAngle) * r * 0.65;
+    if (v / total > 0.08) {
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 11px Inter';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(v, lx, ly);
+    }
+    startAngle += slice;
+  });
+
+  // Center hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.45, 0, Math.PI * 2);
+  ctx.fillStyle = '#0c1020';
+  ctx.fill();
+
+  // Center text
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = 'bold 20px Rajdhani';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(total, cx, cy - 6);
+  ctx.fillStyle = 'rgba(148,163,184,0.6)';
+  ctx.font = '9px Inter';
+  ctx.fillText('БОТОВ', cx, cy + 10);
+}
+
+// ══ VERSION ══
+async function loadVersion() {
+  try {
+    const res = await api('/ASF');
+    const v = res?.Result?.Version;
+    if (v) {
+      const ver = 'v' + [v.Major,v.Minor,v.Build,v.Revision].join('.');
+      document.getElementById('statusVer').textContent = ver;
+      document.getElementById('aboutVer').textContent  = ver;
+      document.getElementById('aboutVer2').textContent = ver + ' · Desktop UI';
+    }
+    const build = res?.Result?.BuildVariant;
+    if (build) document.getElementById('aboutBuildInfo').textContent = build;
+  } catch {}
+}
+
+// ══ BOT ACTIONS ══
+async function resumeBot(name) {
+  try { await api(`/Bot/${name}/Resume`,'POST'); toast('▶ '+name+' запущен','t-ok'); setTimeout(loadBots,1200); }
+  catch { toast('Ошибка запуска','t-err'); }
+}
+async function pauseBot(name) {
+  try { await api(`/Bot/${name}/Pause`,'POST',{Permanent:false}); toast('⏸ '+name+' пауза','t-ok'); setTimeout(loadBots,1200); }
+  catch { toast('Ошибка','t-err'); }
+}
+async function deleteBot(name) {
+  if (!confirm(`Удалить бота "${name}"?`)) return;
+  try { await api(`/Bot/${name}`,'DELETE'); toast('🗑 '+name+' удалён','t-inf'); setTimeout(loadBots,1200); }
+  catch { toast('Ошибка удаления','t-err'); }
+}
+async function startAllBots() {
+  for (const n of Object.keys(botsCache)) { try { await api(`/Bot/${n}/Resume`,'POST'); } catch {} }
+  toast('▶ Все боты запущены','t-ok'); setTimeout(loadBots,2000);
+}
+async function stopAllBots() {
+  for (const n of Object.keys(botsCache)) { try { await api(`/Bot/${n}/Pause`,'POST',{Permanent:false}); } catch {} }
+  toast('⏹ Все остановлены','t-inf'); setTimeout(loadBots,2000);
+}
+async function lootAll() {
+  try { await api('/Bot/ASF/Loot','POST'); toast('💰 Loot отправлен','t-ok'); }
+  catch { toast('Ошибка loot','t-err'); }
+}
+
+// ══ ADD BOT ══
+function openAddBot() { closeAllModals(); document.getElementById('modalAddBot').classList.add('open'); }
+async function addBot() {
+  const name   = document.getElementById('nb-name').value.trim();
+  const login  = document.getElementById('nb-login').value.trim();
+  const pass   = document.getElementById('nb-pass').value;
+  const en     = document.getElementById('nb-en').value === 'true';
+  if (!name || !login) { toast('Заполни имя и логин','t-err'); return; }
+  const body = { SteamLogin:login, SteamPassword:pass, Enabled:en };
+  const p = document.getElementById('nb-parental').value.trim();
+  if (p) body.SteamParentalCode = p;
+  try {
+    await api(`/Bot/${name}`,'POST',body);
+    toast('✅ Бот добавлен','t-ok');
+    closeModal('modalAddBot');
+    setTimeout(loadBots,1200);
+  } catch { toast('Ошибка добавления','t-err'); }
+}
+
+// ══ BOT DETAILS ══
+function showBotDetails(name) {
+  const bot = botsCache[name];
+  if (!bot) return;
+  const games = bot.CardsFarmer?.GamesToFarm || [];
+  const currentGames = bot.CardsFarmer?.CurrentGamesFarming || [];
+  document.getElementById('botDetailTitle').innerHTML = `🤖 ${esc(name)} ${botStatusBadge(bot)}`;
+  document.getElementById('botDetailContent').innerHTML = `
+    <div class="grid-2 mb-16">
+      <div class="stat-card sc-gold" style="padding:12px;">
+        <div class="stat-label">Карточек осталось</div>
+        <div class="stat-val" style="font-size:28px;">${cardsRemaining(bot) || '0'}</div>
+      </div>
+      <div class="stat-card sc-cyan" style="padding:12px;">
+        <div class="stat-label">Игр в очереди</div>
+        <div class="stat-val" style="font-size:28px;">${games.length}</div>
+      </div>
+    </div>
+    ${currentGames.length ? `
+    <div class="card mb-16">
+      <div class="card-header"><div class="card-title">🎮 Сейчас фармит</div></div>
+      <div class="card-body">
+        ${currentGames.map(g=>`<div class="game-row">
+          <div class="game-name">${esc(g.GameName||'App '+g.AppID)}</div>
+          <div class="game-cards">🃏 ${g.CardsRemaining||0}</div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+    <div class="card mb-16">
+      <div class="card-header"><div class="card-title">📋 Информация</div></div>
+      <div class="card-body">
+        <table class="data-table"><tbody>
+          <tr><td style="color:var(--text3);width:140px;">SteamID</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${bot.SteamID||'—'}</td></tr>
+          <tr><td style="color:var(--text3);">Уровень</td><td>${bot.SteamLevel||'—'}</td></tr>
+          <tr><td style="color:var(--text3);">KeepRunning</td><td>${bot.KeepRunning?'✅':'❌'}</td></tr>
+          <tr><td style="color:var(--text3);">Connected</td><td>${bot.IsConnectedAndLoggedOn?'✅':'❌'}</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;">
+      <button class="btn btn-success" onclick="resumeBot('${esc(name)}');closeModal('modalBotDetails')">▶ Запустить</button>
+      <button class="btn btn-ghost" onclick="pauseBot('${esc(name)}');closeModal('modalBotDetails')">⏸ Пауза</button>
+      <button class="btn btn-gold" onclick="lootBot('${esc(name)}')">💰 Loot</button>
+      <button class="btn btn-danger" onclick="deleteBot('${esc(name)}');closeModal('modalBotDetails')">🗑 Удалить</button>
+    </div>
+  `;
+  document.getElementById('modalBotDetails').classList.add('open');
+}
+
+async function lootBot(name) {
+  try { await api(`/Bot/${name}/Loot`,'POST'); toast('💰 Loot '+name,'t-ok'); }
+  catch { toast('Ошибка','t-err'); }
+}
+
+// ══ FARMING ══
+async function loadFarming() {
+  const el = document.getElementById('farmingContent');
+  el.innerHTML = '<div class="loading-state"><div class="spinner"></div>Загрузка…</div>';
+  const names = Object.keys(botsCache);
+  if (!names.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🌾</div><div class="empty-state-text">Нет ботов</div></div>'; return; }
+  let html = '';
+  for (const name of names) {
+    const bot = botsCache[name];
+    const games = bot.CardsFarmer?.GamesToFarm || [];
+    const current = bot.CardsFarmer?.CurrentGamesFarming || [];
+    const totalCards = cardsRemaining(bot);
+    html += `<div class="card mb-16">
+      <div class="card-header">
+        <div class="card-title">🤖 ${esc(name)} ${botStatusBadge(bot)}</div>
+        <div style="font-size:11px;color:var(--text3);">🃏 ${totalCards} карточек · 🎮 ${games.length} игр</div>
+      </div>
+      <div class="card-body">
+        ${games.length === 0 ? '<div style="color:var(--text3);font-size:12px;text-align:center;padding:10px;">Нет игр для фарминга</div>' :
+          games.map(g => {
+            const maxC = (g.CardsRemaining||0)+(g.CardsDropped||0);
+            const pct = maxC > 0 ? Math.round((g.CardsDropped||0)/maxC*100) : 0;
+            const isCurrent = current.some(c=>c.AppID===g.AppID);
+            return `<div class="game-row">
+              ${isCurrent ? '<span style="color:var(--cyan);">▶</span>' : '<span style="color:var(--text3);">·</span>'}
+              <div class="game-name">${esc(g.GameName||'App '+g.AppID)}</div>
+              <div class="game-cards">🃏 ${g.CardsRemaining||0}</div>
+              <div class="game-progress"><div class="game-progress-fill" style="width:${pct}%"></div></div>
+              <div style="font-size:10px;color:var(--text3);min-width:30px;">${pct}%</div>
+            </div>`;
+          }).join('')}
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ══ KEYS ══
+async function redeemKeys() {
+  const bot = document.getElementById('keyBotSel').value;
+  const raw = document.getElementById('keysInput').value.trim();
+  if (!raw) { toast('Введи хотя бы один ключ','t-err'); return; }
+  const keys = raw.split('\n').map(k=>k.trim()).filter(k=>k);
+  const resultsEl = document.getElementById('keyResults');
+  resultsEl.innerHTML = '<div class="loading-state"><div class="spinner"></div>Активация…</div>';
+  const results = [];
+  for (const key of keys) {
+    try {
+      const ep = bot ? `/Bot/${bot}/GamesToRedeemInBackground` : '/Bot/ASF/GamesToRedeemInBackground';
+      await api(ep, 'POST', { KeyToRedeem: key });
+      results.push({ key, status:'ok', msg:'Добавлен в очередь' });
+    } catch(e) {
+      results.push({ key, status:'err', msg:'Ошибка: '+e.message });
+    }
+  }
+  resultsEl.innerHTML = results.map(r=>`
+    <div class="key-result key-${r.status}">
+      <span style="font-family:'JetBrains Mono',monospace;flex:1;">${esc(r.key)}</span>
+      <span>${r.status==='ok'?'✅':'❌'} ${esc(r.msg)}</span>
+    </div>`).join('');
+  toast(`✅ ${results.filter(r=>r.status==='ok').length}/${results.length} добавлено`,'t-ok');
+}
+
+// ══ TRADES ══
+async function loadTrades() {
+  const el = document.getElementById('tradesIncoming');
+  el.innerHTML = '<div class="loading-state"><div class="spinner"></div>Загрузка…</div>';
+  try {
+    const res = await api('/Bot/ASF/TradeOffer');
+    const trades = res?.Result || [];
+    if (!trades.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔄</div><div class="empty-state-text">Нет входящих обменов</div></div>'; return; }
+    el.innerHTML = trades.map(t=>`
+      <div class="trade-card">
+        <div class="flex gap-8 mb-12">
+          <div style="font-weight:600;flex:1;">Трейд #${t.TradeOfferID}</div>
+          <div class="status-badge sb-idle">${t.State||'Pending'}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);">От: ${t.SteamID||'—'} · Получаем: ${t.ItemsToReceive?.length||0} · Отдаём: ${t.ItemsToGive?.length||0}</div>
+        <div style="display:flex;gap:7px;margin-top:10px;">
+          <button class="btn btn-success btn-sm">✅ Принять</button>
+          <button class="btn btn-danger btn-sm">❌ Отклонить</button>
+        </div>
+      </div>`).join('');
+  } catch { el.innerHTML = '<div class="error-banner"><div class="error-banner-icon">⚡</div><div>Нет подключения к API</div></div>'; }
+}
+
+function switchTradeTab(tab, el) {
+  document.querySelectorAll('#page-trades .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['tradesIncoming','tradesOutgoing','tradesBlacklist'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+  document.getElementById('trades'+tab.charAt(0).toUpperCase()+tab.slice(1)).style.display='block';
+}
+
+// ══ 2FA ══
+async function load2FA() {
+  const el = document.getElementById('twoFAContent');
+  el.innerHTML = '<div class="loading-state"><div class="spinner"></div>Загрузка…</div>';
+  const names = Object.keys(botsCache).filter(n=>botsCache[n].IsConnectedAndLoggedOn);
+  if (!names.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔐</div><div class="empty-state-text">Нет онлайн ботов с 2FA</div></div>'; return; }
+  const codes = {};
+  for (const name of names) {
+    try { const res = await api(`/Bot/${name}/TwoFactorAuthentication/Token`); codes[name] = res?.Result || null; }
+    catch { codes[name] = null; }
+  }
+  el.innerHTML = `<div class="grid-3">` + names.map(n=>`
+    <div class="card">
+      <div class="card-header"><div class="card-title">🤖 ${esc(n)}</div></div>
+      <div class="card-body" style="text-align:center;">
+        <div class="twofa-code" id="code-${esc(n)}">${codes[n]?.Token || '—'}</div>
+        <div class="twofa-timer"><div class="twofa-timer-fill" id="timer-${esc(n)}" style="width:${codes[n]?.SteamTimeLeft!=null?(codes[n].SteamTimeLeft/30*100):0}%"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;" id="timeleft-${esc(n)}">${codes[n]?.SteamTimeLeft!=null?codes[n].SteamTimeLeft+'с':''}</div>
+        <div style="display:flex;gap:7px;justify-content:center;margin-top:12px;">
+          <button class="btn btn-cyan btn-sm" onclick="refresh2FA('${esc(n)}')">🔄 Обновить</button>
+          <button class="btn btn-ghost btn-sm" onclick="confirm2FA('${esc(n)}')">✅ Подтвердить</button>
+        </div>
+      </div>
+    </div>`).join('') + '</div>';
+  if (twoFAInterval) clearInterval(twoFAInterval);
+  twoFAInterval = setInterval(() => update2FATimers(names, codes), 1000);
+}
+
+function update2FATimers(names, codes) {
+  names.forEach(n => {
+    const timerEl = document.getElementById(`timer-${n}`);
+    const leftEl  = document.getElementById(`timeleft-${n}`);
+    if (!codes[n] || !timerEl) return;
+    const left = Math.max(0, codes[n].SteamTimeLeft - 1);
+    codes[n].SteamTimeLeft = left;
+    timerEl.style.width = (left / 30 * 100) + '%';
+    if (leftEl) leftEl.textContent = left + 'с';
+    if (left === 0) refresh2FA(n, codes);
+  });
+}
+
+async function refresh2FA(name, codesRef) {
+  try {
+    const res = await api(`/Bot/${name}/TwoFactorAuthentication/Token`);
+    const data = res?.Result;
+    if (data) {
+      const el = document.getElementById(`code-${name}`);
+      if (el) el.textContent = data.Token || '—';
+      if (codesRef) codesRef[name] = data;
+    }
+  } catch {}
+}
+
+async function confirm2FA(name) {
+  try { await api(`/Bot/${name}/TwoFactorAuthentication/Confirmations`,'POST'); toast('✅ Подтверждения приняты для '+name,'t-ok'); }
+  catch { toast('Ошибка подтверждения','t-err'); }
+}
+
+// ══ CONFIG ══
+async function loadConfigBotList() {
+  const sel = document.getElementById('configBotSel');
+  const names = Object.keys(botsCache);
+  sel.innerHTML = '<option value="__asf">ASF (глобальный)</option>' + names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+}
+
+async function loadBotConfig() {
+  const sel = document.getElementById('configBotSel');
+  const val = sel?.value;
+  const mainEl = document.getElementById('configMain');
+  const jsonEl = document.getElementById('configJson');
+  if (!mainEl || !jsonEl) return;
+  mainEl.innerHTML = '<div class="loading-state"><div class="spinner"></div>Загрузка…</div>';
+  try {
+    let data;
+    if (val === '__asf') { const res = await api('/ASF'); data = res?.Result?.GlobalConfig || {}; }
+    else { const res = await api(`/Bot/${val}`); data = res?.Result?.[val] || {}; }
+    jsonEl.value = JSON.stringify(data, null, 2);
+    mainEl.innerHTML = val === '__asf' ? `
+      <div class="form-group"><div class="form-label">AutoRestart</div><select class="form-input"><option value="true" ${data.AutoRestart?'selected':''}>Да</option><option value="false">Нет</option></select></div>
+      <div class="form-group"><div class="form-label">Headless</div><select class="form-input"><option value="true" ${data.Headless?'selected':''}>Да</option><option value="false">Нет</option></select></div>
+      <div class="form-group"><div class="form-label">IPCPassword</div><input class="form-input" value="${esc(data.IPCPassword||'')}" placeholder="Пусто = без пароля"></div>` :
+      `<div class="form-group"><div class="form-label">Enabled</div><select class="form-input"><option value="true" ${data.Enabled?'selected':''}>Да</option><option value="false">Нет</option></select></div>
+      <div class="form-group"><div class="form-label">FarmingOrder</div><select class="form-input"><option value="0">Unordered</option><option value="3" ${data.FarmingOrder===3?'selected':''}>CardDropsAscending</option><option value="4" ${data.FarmingOrder===4?'selected':''}>CardDropsDescending</option></select></div>
+      <div class="form-group"><div class="form-label">OnlineStatus</div><select class="form-input"><option value="0">Offline</option><option value="1" ${!data.OnlineStatus||data.OnlineStatus===1?'selected':''}>Online</option></select></div>`;
+  } catch { mainEl.innerHTML = '<div class="error-banner"><div class="error-banner-icon">⚡</div><div>Ошибка загрузки конфига</div></div>'; }
+}
+
+async function saveConfig() {
+  const val = document.getElementById('configBotSel')?.value;
+  try {
+    const data = JSON.parse(document.getElementById('configJson').value);
+    await api(val === '__asf' ? '/ASF' : `/Bot/${val}`, 'POST', data);
+    toast('💾 Конфиг сохранён','t-ok');
+  } catch(e) {
+    toast(e instanceof SyntaxError ? 'Ошибка JSON: проверь формат' : 'Ошибка сохранения','t-err');
+  }
+}
+
+// ══ COMMANDS ══
+function setCmd(c)      { document.getElementById('cmdInput').value = c; document.getElementById('cmdInput').focus(); }
+function setQuickCmd(c) { document.getElementById('quickCmd').value = c; document.getElementById('quickCmd').focus(); }
+
+async function sendCmd() {
+  const bot = document.getElementById('cmdBotSel').value;
+  const cmd = document.getElementById('cmdInput').value.trim();
+  if (!cmd) return;
+  const out = document.getElementById('cmdOut');
+  const ts  = new Date().toLocaleTimeString();
+  out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-warn"> [YOU→${bot||'SF'}]</span> ${esc(cmd)}</div>`;
+  document.getElementById('cmdInput').value = '';
+  try {
+    const ep  = bot ? `/Bot/${bot}/Command` : '/Command';
+    const res = await api(ep,'POST',{Command:cmd});
+    const reply = esc(String(res?.Result ?? res?.Message ?? 'OK'));
+    out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-ok"> [SF]</span> ${reply}</div>`;
+  } catch {
+    out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-err"> [ERR]</span> Нет связи</div>`;
+  }
+  out.scrollTop = out.scrollHeight;
+}
+
+async function sendQuickCmd() {
+  const cmd = document.getElementById('quickCmd').value.trim();
+  if (!cmd) return;
+  const out = document.getElementById('quickOut');
+  const ts  = new Date().toLocaleTimeString();
+  out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-warn"> ›</span> ${esc(cmd)}</div>`;
+  document.getElementById('quickCmd').value = '';
+  try {
+    const res = await api('/Command','POST',{Command:cmd});
+    const reply = esc(String(res?.Result ?? res?.Message ?? 'OK'));
+    out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-ok"> ‹</span> ${reply}</div>`;
+  } catch { out.innerHTML += `<div class="log-line"><span class="log-err"> [ERR]</span> Нет связи</div>`; }
+  out.scrollTop = out.scrollHeight;
+}
+
+// ══ LOGS ══
+async function loadLog() {
+  try {
+    const res = await api('/NLog');
+    const lines = (res?.Result || []).slice(-200);
+    const toHtml = lines => lines.map(l => {
+      const t = esc(String(l));
+      let cls = 'log-info';
+      if (/error|exception|fail/i.test(t)) cls = 'log-err';
+      else if (/warn/i.test(t)) cls = 'log-warn';
+      else if (/success|card|add|redeem|farm/i.test(t)) cls = 'log-ok';
+      return `<div class="log-line"><span class="${cls}">${t}</span></div>`;
+    }).join('');
+    const html = toHtml(lines) || '<div class="log-line" style="color:var(--text3);">Нет логов.</div>';
+    document.getElementById('fullLog').innerHTML = html;
+    document.getElementById('dashLog').innerHTML = toHtml(lines.slice(-50));
+    scrollLog();
+  } catch {}
+}
+function clearLog() { ['fullLog','dashLog'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=''; }); }
+function scrollLog() { ['fullLog','dashLog'].forEach(id => { const el=document.getElementById(id); if(el) el.scrollTop=el.scrollHeight; }); }
+
+// ══ SETTINGS ══
+function fillSettings() {
+  document.getElementById('sHost').value = API_HOST;
+  document.getElementById('sPort').value = API_PORT;
+  document.getElementById('sPass').value = API_PASS;
+}
+function saveSettings() {
+  API_HOST = document.getElementById('sHost').value.trim() || 'localhost';
+  API_PORT = document.getElementById('sPort').value.trim() || '1242';
+  API_PASS = document.getElementById('sPass').value;
+  localStorage.setItem('sf_host', API_HOST);
+  localStorage.setItem('sf_port', API_PORT);
+  localStorage.setItem('sf_pass', API_PASS);
+  toast('💾 Сохранено','t-ok');
+  refreshAll();
+}
+
+// ══ SHUTDOWN / RESTART ══
+function confirmShutdown() { closeAllModals(); document.getElementById('modalShutdown').classList.add('open'); }
+function restartASF()      { closeAllModals(); document.getElementById('modalRestart').classList.add('open'); }
+async function doShutdown() { closeModal('modalShutdown'); try { await api('/ASF/Exit','POST'); toast('Завершение работы…','t-inf'); } catch {} }
+async function doRestart()  { closeModal('modalRestart');  try { await api('/ASF/Restart','POST'); toast('🔄 Перезапуск…','t-warn'); } catch {} }
+
+// ══ UPTIME ══
+function updateUptime() {
+  const s = Math.floor((Date.now()-startTs)/1000);
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  const t = h>0 ? `${h}ч ${m}м` : m>0 ? `${m}м ${sec}с` : `${sec}с`;
+  const el = document.getElementById('st-uptime'); if(el) el.textContent = t;
+  const el2 = document.getElementById('sTotal-uptime'); if(el2) el2.textContent = t;
+  updateRefreshTime();
+}
+
+// ══ UTILS ══
+function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+function closeAllModals() { document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open')); }
+function toast(msg, cls='t-ok') {
+  const el = Object.assign(document.createElement('div'), { className:'toast '+cls, textContent:msg });
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+
+// ══ REFRESH ══
+async function refreshAll() {
+  await Promise.all([loadBots(), loadVersion(), loadLog()]);
+}
+
+// ══ INIT ══
+fillSettings();
+requestNotifications();
+refreshAll();
+setInterval(refreshAll, 12000);
+setInterval(updateUptime, 1000);</script>
+</body>
+</html>
