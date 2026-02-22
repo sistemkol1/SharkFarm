@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharkFarm — Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ══ Reset & Root ══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #07091a;
+  --bg2:        #0e1525;
+  --bg3:        #162035;
+  --bg4:        #1a2540;
+  --border:     rgba(255,255,255,0.07);
+  --accent:     #e63946;
+  --accent2:    #ff6b35;
+  --green:      #22c55e;
+  --gold:       #fbbf24;
+  --cyan:       #00e5ff;
+  --purple:     #8b5cf6;
+  --text:       #f1f5f9;
+  --text2:      #94a3b8;
+  --text3:      #475569;
+  --sidebar-w:  240px;
+  --topbar-h:   56px;
+  --radius:     12px;
+  --radius-sm:  8px;
+  --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Background effects ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(230,57,70,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230,57,70,0.012) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+  animation: gridDrift 40s linear infinite;
+  mask-image: radial-gradient(ellipse 90% 90% at 60% 40%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 90% at 60% 40%, black 30%, transparent 100%);
+}
+@keyframes gridDrift { 100% { background-position: 48px 48px; } }
+
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 70% 20%, rgba(230,57,70,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(255,107,53,0.05) 0%, transparent 60%);
+  animation: auroraPulse 24s ease-in-out infinite alternate;
+}
+@keyframes auroraPulse {
+  0%   { opacity: 0.7; }
+  100% { opacity: 1.0; }
+}
+
+/* ══ LAYOUT ══ */
+.layout {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ══ SIDEBAR ══ */
+.sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(14,21,37,0.97) 0%, rgba(7,9,26,0.98) 100%);
+  border-right: 1px solid rgba(230,57,70,0.12);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(20px);
+}
+
+/* Sidebar glow line */
+.sidebar::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(230,57,70,0.5) 30%, rgba(230,57,70,0.5) 70%, transparent 100%);
+}
+
+.sidebar-logo {
+  padding: 20px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon-wrap {
+  position: relative;
+  width: 40px; height: 40px;
+  flex-shrink: 0;
+}
+.logo-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: conic-gradient(from 0deg, var(--accent), var(--accent2), #ff1744, var(--accent2), var(--accent));
+  animation: spin 3s linear infinite;
+}
+.logo-ring::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 10px;
+  background: var(--bg2);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.logo-icon {
+  position: relative; z-index: 2;
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.logo-text-wrap .logo-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: logoFlow 5s ease infinite;
+}
+@keyframes logoFlow { 0%,100%{background-position:0%} 50%{background-position:100%} }
+.logo-text-wrap .logo-sub {
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Status pill */
+.sidebar-status {
+  margin: 14px 16px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.sidebar-status.offline {
+  background: rgba(230,57,70,0.08);
+  border-color: rgba(230,57,70,0.2);
+  color: var(--accent);
+}
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s ease infinite;
+  flex-shrink: 0;
+}
+.offline .status-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+.status-text { flex: 1; }
+.status-ver { font-size: 10px; color: var(--text3); font-weight: 400; }
+
+/* Nav */
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: var(--transition);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+.nav-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(230,57,70,0.2), rgba(255,107,53,0.12));
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(230,57,70,0.15), inset 0 1px 0 rgba(230,57,70,0.1);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge {
+  margin-left: auto;
+  background: rgba(230,57,70,0.2);
+  color: var(--accent);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Sidebar bottom */
+.sidebar-bottom {
+  padding: 12px 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ══ MAIN AREA ══ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Topbar */
+.topbar {
+  height: var(--topbar-h);
+  background: rgba(7,9,26,0.9);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  flex-shrink: 0;
+  backdrop-filter: blur(20px);
+}
+.topbar-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.topbar-sub { font-size: 12px; color: var(--text3); }
+.topbar-spacer { flex: 1; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Quick stats in topbar */
+.topbar-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text2);
+}
+.topbar-stat strong { font-size: 15px; font-weight: 700; color: var(--text); }
+.topbar-stat.ts-green strong { color: var(--green); }
+.topbar-stat.ts-cyan  strong { color: var(--cyan); }
+.topbar-stat.ts-gold  strong { color: var(--gold); }
+
+/* Page content */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(230,57,70,0.3) transparent;
+}
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: rgba(230,57,70,0.3); border-radius: 4px; }
+
+/* ══ Pages ══ */
+.page { display: none; animation: fadeIn .25s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══ GRID LAYOUTS ══ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.grid-main-side { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+
+/* ══ CARDS ══ */
+.card {
+  background: rgba(14,21,37,0.8);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.card-body { padding: 16px 18px; }
+
+/* ══ STAT CARDS ══ */
+.stat-card {
+  position: relative;
+  border-radius: var(--radius);
+  padding: 18px;
+  overflow: hidden;
+  cursor: default;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: var(--radius);
+  padding: 1px;
+  background: linear-gradient(135deg, var(--sc-c1, var(--accent)), var(--sc-c2, var(--accent2)), rgba(255,255,255,0.08), var(--sc-c1, var(--accent)));
+  background-size: 300% 300%;
+  animation: shimmer 4s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+@keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+.stat-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--sc-c1, var(--accent)), transparent);
+  background-size: 200%; animation: shimmer 3s linear infinite;
+}
+.sc-red   { background: linear-gradient(160deg, rgba(230,57,70,.18) 0%, rgba(14,21,37,.97) 50%); --sc-c1:#e63946; --sc-c2:#ff6b35; box-shadow: 0 2px 20px rgba(230,57,70,.12); }
+.sc-green { background: linear-gradient(160deg, rgba(34,197,94,.18) 0%, rgba(14,21,37,.97) 50%); --sc-c1:#22c55e; --sc-c2:#86efac; box-shadow: 0 2px 20px rgba(34,197,94,.12); }
+.sc-cyan  { background: linear-gradient(160deg, rgba(0,229,255,.15) 0%, rgba(14,21,37,.97) 50%); --sc-c1:#00e5ff; --sc-c2:#7dd3fc; box-shadow: 0 2px 20px rgba(0,229,255,.10); }
+.sc-gold  { background: linear-gradient(160deg, rgba(251,191,36,.18) 0%, rgba(14,21,37,.97) 50%); --sc-c1:#fbbf24; --sc-c2:#fde68a; box-shadow: 0 2px 20px rgba(251,191,36,.12); }
+.sc-purple{ background: linear-gradient(160deg, rgba(139,92,246,.18) 0%, rgba(14,21,37,.97) 50%); --sc-c1:#8b5cf6; --sc-c2:#c4b5fd; box-shadow: 0 2px 20px rgba(139,92,246,.12); }
+
+.stat-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.stat-val   { font-family: 'Rajdhani', sans-serif; font-size: 38px; font-weight: 700; line-height: 1; }
+.stat-sub   { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.sc-red    .stat-val { color: var(--accent); }
+.sc-green  .stat-val { color: var(--green); }
+.sc-cyan   .stat-val { color: var(--cyan); }
+.sc-gold   .stat-val { color: var(--gold); }
+.sc-purple .stat-val { color: var(--purple); }
+
+/* ══ BOT TABLE (desktop style) ══ */
+.bot-table { width: 100%; border-collapse: collapse; }
+.bot-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.bot-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+  font-size: 13px;
+}
+.bot-table tr:last-child td { border-bottom: none; }
+.bot-table tr { transition: var(--transition); }
+.bot-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+.bot-avatar-sm {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  position: relative;
+  background: var(--bg3);
+}
+.bot-ring-sm {
+  position: absolute; inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--ring-c, var(--accent)), transparent 180deg, var(--ring-c, var(--accent)));
+  animation: spin 2s linear infinite;
+}
+.bot-ring-sm::after { content:''; position:absolute; inset:2px; border-radius:50%; background:var(--bg2); }
+.bot-name-cell { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; }
+.bot-game-cell { font-size: 12px; color: var(--text2); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sb-online  { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.35); }
+.sb-farming { background: rgba(0,229,255,.15); color: var(--cyan); border: 1px solid rgba(0,229,255,.35); }
+.sb-idle    { background: rgba(251,191,36,.15); color: var(--gold); border: 1px solid rgba(251,191,36,.35); }
+.sb-offline { background: rgba(71,85,105,.15); color: var(--text3); border: 1px solid rgba(71,85,105,.3); }
+.ring-online   { --ring-c: var(--green); }
+.ring-farming  { --ring-c: var(--cyan); }
+.ring-idle     { --ring-c: var(--gold); }
+
+/* Progress mini */
+.progress-mini { width: 80px; height: 4px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+.progress-mini-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--cyan), #7dd3fc);
+  box-shadow: 0 0 6px rgba(0,229,255,.4);
+  animation: shimmer 2.5s linear infinite;
+  background-size: 200%;
+  transition: width .5s ease;
+}
+
+/* Bot cards for bots page (full) */
+.bots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.bot-card-full {
+  background: rgba(14,21,37,.85);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  transition: transform var(--transition);
+  border: 1px solid transparent;
+}
+.bot-card-full:hover { transform: translateY(-2px); }
+.bc-online  { border-color: rgba(34,197,94,.3); box-shadow: 0 2px 16px rgba(34,197,94,.1); }
+.bc-farming { border-color: rgba(0,229,255,.3); box-shadow: 0 2px 16px rgba(0,229,255,.1); }
+.bc-idle    { border-color: rgba(251,191,36,.25); }
+.bc-offline { border-color: rgba(71,85,105,.25); }
+
+.bot-card-top { height: 3px; }
+.bc-online  .bot-card-top { background: linear-gradient(90deg, transparent, var(--green), transparent); background-size:200%; animation: shimmer 3s linear infinite; }
+.bc-farming .bot-card-top { background: linear-gradient(90deg, transparent, var(--cyan), transparent); background-size:200%; animation: shimmer 3s linear infinite; }
+.bc-idle    .bot-card-top { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.bc-offline .bot-card-top { background: rgba(71,85,105,.3); }
+
+.bot-card-body { padding: 14px; display: flex; align-items: center; gap: 12px; }
+.bot-avatar-lg {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: var(--bg3);
+  position: relative;
+  flex-shrink: 0;
+}
+.bot-ring-lg { position: absolute; inset:-2px; border-radius:50%; animation: spin 2.5s linear infinite; }
+.bc-online  .bot-ring-lg { background: conic-gradient(from 0deg, var(--green), transparent 150deg, var(--green)); }
+.bc-farming .bot-ring-lg { background: conic-gradient(from 0deg, var(--cyan), transparent 150deg, var(--cyan)); }
+.bc-idle    .bot-ring-lg { background: conic-gradient(from 0deg, var(--gold), transparent 150deg, var(--gold)); }
+.bc-offline .bot-ring-lg { display: none; }
+.bot-ring-lg::after { content:''; position:absolute; inset:2px; border-radius:50%; background:var(--bg2); }
+.bot-info { flex: 1; min-width: 0; }
+.bot-name-lg { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; }
+.bc-online  .bot-name-lg { color: #86efac; }
+.bc-farming .bot-name-lg { color: #a5f3fc; }
+.bc-idle    .bot-name-lg { color: #fde68a; }
+.bc-offline .bot-name-lg { color: var(--text2); }
+.bot-detail-lg { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+.bot-card-footer { padding: 0 14px 14px; display: flex; gap: 6px; }
+
+/* ══ BUTTONS ══ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none;
+  transition: var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(.96); }
+.btn-primary { background: linear-gradient(135deg, #c1121f, var(--accent)); color: #fff; box-shadow: 0 2px 12px rgba(230,57,70,.3); }
+.btn-primary:hover { box-shadow: 0 4px 20px rgba(230,57,70,.5); }
+.btn-ghost { background: rgba(255,255,255,.06); color: var(--text2); border: 1px solid rgba(255,255,255,.08); }
+.btn-ghost:hover { background: rgba(255,255,255,.1); color: var(--text); }
+.btn-danger { background: rgba(230,57,70,.15); color: var(--accent); border: 1px solid rgba(230,57,70,.3); }
+.btn-danger:hover { background: rgba(230,57,70,.25); }
+.btn-success { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-icon { padding: 6px 8px; }
+.btn-full { width: 100%; }
+
+/* ══ FORMS ══ */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; padding: 9px 12px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius-sm);
+  color: var(--text); font-size: 13px; font-family: inherit;
+  transition: var(--transition); outline: none;
+}
+.form-input:focus { border-color: rgba(230,57,70,.5); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
+select.form-input { cursor: pointer; }
+option { background: var(--bg2); }
+
+/* ══ LOG AREA ══ */
+.log-area {
+  font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(230,57,70,.2) transparent;
+}
+.log-area::-webkit-scrollbar { width: 3px; }
+.log-area::-webkit-scrollbar-thumb { background: rgba(230,57,70,.3); border-radius: 3px; }
+.log-line { padding: 2px 0; white-space: pre-wrap; word-break: break-all; }
+.log-time { color: var(--text3); margin-right: 6px; font-size: 10px; }
+.log-ok   { color: #4ade80; }
+.log-err  { color: var(--accent); }
+.log-warn { color: var(--gold); }
+.log-info { color: var(--text2); }
+
+/* ══ CMD BAR ══ */
+.cmd-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+.cmd-input {
+  flex: 1; padding: 10px 14px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius-sm);
+  color: var(--text); font-family: monospace; font-size: 13px;
+  outline: none; transition: var(--transition);
+}
+.cmd-input:focus { border-color: rgba(230,57,70,.5); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
+.cmd-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.cmd-pill {
+  padding: 4px 12px;
+  background: rgba(230,57,70,.1);
+  border: 1px solid rgba(230,57,70,.2);
+  border-radius: 20px;
+  font-size: 12px; color: var(--accent);
+  cursor: pointer; transition: var(--transition);
+  font-family: monospace;
+}
+.cmd-pill:hover { background: rgba(230,57,70,.2); transform: translateY(-1px); }
+
+/* ══ SECTION HEADER ══ */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px; font-weight: 700;
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.section-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.section-actions { display: flex; align-items: center; gap: 8px; }
+
+/* ══ MODALS ══ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn .2s ease;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: linear-gradient(145deg, rgba(22,32,53,.97), rgba(14,21,37,.97));
+  border: 1px solid rgba(230,57,70,.2);
+  border-radius: 16px;
+  padding: 28px;
+  min-width: 380px; max-width: 480px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
+}
+.modal h3 { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+/* ══ TOASTS ══ */
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600;
+  animation: slideIn .3s ease;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.t-ok  { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+.t-err { background: rgba(230,57,70,.15); color: var(--accent); border: 1px solid rgba(230,57,70,.3); }
+.t-inf { background: rgba(0,229,255,.12); color: var(--cyan); border: 1px solid rgba(0,229,255,.25); }
+
+/* ══ LOADING ══ */
+.loading-state { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 30px; color: var(--text3); font-size: 13px; }
+.spinner { width: 18px; height: 18px; border: 2px solid rgba(230,57,70,.2); border-top-color: var(--accent); border-radius: 50%; animation: rotate .7s linear infinite; }
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+/* ══ SCROLLBAR ══ */
+* { scrollbar-width: thin; scrollbar-color: rgba(230,57,70,.2) transparent; }
+
+/* ══ Mb splitter ══ */
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.gap-8 { gap: 8px; }
+.flex { display: flex; align-items: center; }
+
+/* Hero mini stats */
+.hero-stats-bar {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,.03);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.hero-stat {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  text-align: center;
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat-val { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+.hero-stat-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-top: 3px; }
+.col-green { color: var(--green); }
+.col-blue  { color: var(--cyan); }
+.col-gold  { color: var(--gold); }
+.col-red   { color: var(--accent); }
+
+/* Error banner */
+.error-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: rgba(230,57,70,.08);
+  border: 1px solid rgba(230,57,70,.2);
+  border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--text2);
+}
+.error-banner-icon { font-size: 20px; flex-shrink: 0; }
+
+/* About */
+.about-logo-big {
+  width: 80px; height: 80px;
+  border-radius: 24px;
+  position: relative; margin: 0 auto 16px;
+}
+.about-logo-ring {
+  position: absolute; inset: -3px;
+  border-radius: 26px;
+  background: conic-gradient(from 0deg, var(--accent), var(--accent2), #ff1744, var(--accent2), var(--accent));
+  animation: spin 2.5s linear infinite;
+}
+.about-logo-ring::after { content:''; position:absolute; inset:3px; border-radius:23px; background: var(--bg2); }
+.about-logo-inner { position:relative; z-index:2; width:80px; height:80px; border-radius:24px; display:flex; align-items:center; justify-content:center; font-size:40px; }
+
+/* Divider */
+.divider { height: 1px; background: rgba(255,255,255,.05); margin: 0 -18px 16px; }
+
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-icon-wrap">
+        <div class="logo-ring"></div>
+        <div class="logo-icon">🦈</div>
+      </div>
+      <div class="logo-text-wrap">
+        <div class="logo-name">SHARKFARM</div>
+        <div class="logo-sub">Steam Farmer</div>
+      </div>
+    </div>
+
+    <div class="sidebar-status" id="sidebarStatus" onclick="showPage('settings')">
+      <div class="status-dot"></div>
+      <div>
+        <div class="status-text" id="statusText">Connecting…</div>
+        <div class="status-ver" id="statusVer">v—</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-dash" onclick="showPage('dash')">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" id="nav-bots" onclick="showPage('bots')">
+        <span class="nav-icon">🤖</span> Боты
+        <span class="nav-badge" id="botBadge" style="display:none">0</span>
+      </button>
+      <button class="nav-item" id="nav-cmd" onclick="showPage('cmd')">
+        <span class="nav-icon">⌨️</span> Консоль
+      </button>
+      <button class="nav-item" id="nav-logs" onclick="showPage('logs')">
+        <span class="nav-icon">📋</span> Логи
+      </button>
+      <button class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <span class="nav-icon">⚙️</span> Настройки
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="refreshAll()" title="Обновить">
+        <span class="nav-icon">🔄</span> Обновить
+      </button>
+      <button class="nav-item" onclick="confirmShutdown()" style="color:var(--accent);">
+        <span class="nav-icon">⏻</span> Shutdown
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-sub" id="topbarSub">Обзор системы</div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-actions">
+        <div class="topbar-stat ts-green">
+          <span>Онлайн</span><strong id="tb-online">—</strong>
+        </div>
+        <div class="topbar-stat ts-cyan">
+          <span>Фармит</span><strong id="tb-farming">—</strong>
+        </div>
+        <div class="topbar-stat ts-gold">
+          <span>Карточек</span><strong id="tb-cards">—</strong>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('bots');openAddBot()">+ Добавить бота</button>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="page active" id="page-dash">
+
+        <!-- Stat cards row -->
+        <div class="grid-4 mb-16">
+          <div class="stat-card sc-red">
+            <div class="stat-label">Ботов онлайн</div>
+            <div class="stat-val" id="st-online">—</div>
+            <div class="stat-sub">из <span id="st-total">—</span> всего</div>
+          </div>
+          <div class="stat-card sc-cyan">
+            <div class="stat-label">Фармит сейчас</div>
+            <div class="stat-val" id="st-farming">—</div>
+            <div class="stat-sub">ботов активно</div>
+          </div>
+          <div class="stat-card sc-gold">
+            <div class="stat-label">Карточек в очереди</div>
+            <div class="stat-val" id="st-cards">—</div>
+            <div class="stat-sub">осталось фармить</div>
+          </div>
+          <div class="stat-card sc-green">
+            <div class="stat-label">Аптайм UI</div>
+            <div class="stat-val" id="st-uptime" style="font-size:28px;padding-top:4px;">—</div>
+            <div class="stat-sub">с запуска интерфейса</div>
+          </div>
+        </div>
+
+        <!-- Main + Side -->
+        <div class="grid-main-side">
+
+          <!-- Left column -->
+          <div>
+            <!-- Recent bots -->
+            <div class="card mb-16">
+              <div class="card-header">
+                <div class="card-title">🤖 Боты — быстрый обзор</div>
+                <div class="flex gap-8">
+                  <button class="btn btn-ghost btn-sm" onclick="startAllBots()">▶ Все</button>
+                  <button class="btn btn-danger btn-sm" onclick="stopAllBots()">⏹ Стоп</button>
+                  <button class="btn btn-ghost btn-sm" onclick="showPage('bots')">Все →</button>
+                </div>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="bot-table">
+                  <thead>
+                    <tr>
+                      <th style="width:44px;"></th>
+                      <th>Аккаунт</th>
+                      <th>Статус</th>
+                      <th>Игра / Активность</th>
+                      <th>Карточки</th>
+                      <th>Прогресс</th>
+                      <th style="width:120px;">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashBotTable">
+                    <tr><td colspan="7"><div class="loading-state"><div class="spinner"></div>Загрузка…</div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Log mini -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📋 Последние логи</div>
+                <div class="flex gap-8">
+                  <button class="btn btn-ghost btn-sm" onclick="clearLog()">🗑</button>
+                  <button class="btn btn-ghost btn-sm" onclick="showPage('logs')">Все →</button>
+                </div>
+              </div>
+              <div class="card-body" style="padding:12px;">
+                <div class="log-area" id="dashLog" style="height:220px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right column (sidebar panel) -->
+          <div>
+            <!-- SharkFarm info -->
+            <div class="card mb-16" style="text-align:center;">
+              <div class="card-body">
+                <div class="about-logo-big" style="margin-bottom:12px;">
+                  <div class="about-logo-ring"></div>
+                  <div class="about-logo-inner">🦈</div>
+                </div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">SharkFarm</div>
+                <div style="font-size:12px;color:var(--text3);margin-top:4px;" id="aboutVer">v—</div>
+                <div style="height:1px;background:rgba(255,255,255,.05);margin:14px 0;"></div>
+                <div class="hero-stats-bar">
+                  <div class="hero-stat">
+                    <div class="hero-stat-val col-green" id="ds-active">—</div>
+                    <div class="hero-stat-lbl">Онлайн</div>
+                  </div>
+                  <div class="hero-stat">
+                    <div class="hero-stat-val col-blue" id="ds-farming">—</div>
+                    <div class="hero-stat-lbl">Фармит</div>
+                  </div>
+                  <div class="hero-stat">
+                    <div class="hero-stat-val col-gold" id="ds-total">—</div>
+                    <div class="hero-stat-lbl">Всего</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick command -->
+            <div class="card mb-16">
+              <div class="card-header"><div class="card-title">⚡ Быстрая команда</div></div>
+              <div class="card-body">
+                <div class="cmd-bar mb-12">
+                  <input class="cmd-input" id="quickCmd" placeholder="status, farm, loot…" onkeydown="if(event.key==='Enter')sendQuickCmd()">
+                  <button class="btn btn-primary btn-icon" onclick="sendQuickCmd()">↵</button>
+                </div>
+                <div class="cmd-pills">
+                  <div class="cmd-pill" onclick="setQuickCmd('status')">status</div>
+                  <div class="cmd-pill" onclick="setQuickCmd('farm')">farm</div>
+                  <div class="cmd-pill" onclick="setQuickCmd('loot')">loot</div>
+                  <div class="cmd-pill" onclick="setQuickCmd('2fa')">2fa</div>
+                  <div class="cmd-pill" onclick="setQuickCmd('stop')">stop</div>
+                  <div class="cmd-pill" onclick="setQuickCmd('restart')">restart</div>
+                </div>
+                <div class="log-area mt-12" id="quickOut" style="height:120px;margin-top:12px;"></div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">🎮 Управление</div></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-success btn-full" onclick="startAllBots()">▶ Запустить всех ботов</button>
+                <button class="btn btn-danger btn-full" onclick="stopAllBots()">⏹ Остановить всех</button>
+                <button class="btn btn-ghost btn-full" onclick="refreshAll()">🔄 Обновить данные</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /grid-main-side -->
+      </div><!-- /page-dash -->
+
+      <!-- ══ BOTS PAGE ══ -->
+      <div class="page" id="page-bots">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Управление ботами</div>
+            <div class="section-sub">Запуск, остановка и мониторинг</div>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-success" onclick="startAllBots()">▶ Запустить всех</button>
+            <button class="btn btn-danger" onclick="stopAllBots()">⏹ Остановить всех</button>
+            <button class="btn btn-primary" onclick="openAddBot()">+ Добавить</button>
+          </div>
+        </div>
+        <div class="bots-grid" id="fullBotList">
+          <div class="loading-state"><div class="spinner"></div>Загрузка ботов…</div>
+        </div>
+      </div>
+
+      <!-- ══ COMMAND PAGE ══ -->
+      <div class="page" id="page-cmd">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Командная консоль</div>
+            <div class="section-sub">Отправка команд SharkFarm API</div>
+          </div>
+          <button class="btn btn-ghost" onclick="document.getElementById('cmdOut').innerHTML=''">🗑 Очистить</button>
+        </div>
+        <div class="grid-2" style="align-items:start;">
+          <div>
+            <div class="card mb-16">
+              <div class="card-header"><div class="card-title">⌨️ Ввод команды</div></div>
+              <div class="card-body">
+                <div class="form-group">
+                  <div class="form-label">Целевой бот</div>
+                  <select class="form-input" id="cmdBotSel">
+                    <option value="">— SharkFarm (все) —</option>
+                  </select>
+                </div>
+                <div class="cmd-bar">
+                  <input class="cmd-input" id="cmdInput" placeholder="Введите команду…" onkeydown="if(event.key==='Enter')sendCmd()">
+                  <button class="btn btn-primary" style="padding:0 18px;height:42px;" onclick="sendCmd()">↵ Отправить</button>
+                </div>
+                <div class="cmd-pills">
+                  <div class="cmd-pill" onclick="setCmd('status')">status</div>
+                  <div class="cmd-pill" onclick="setCmd('farm')">farm</div>
+                  <div class="cmd-pill" onclick="setCmd('stop')">stop</div>
+                  <div class="cmd-pill" onclick="setCmd('restart')">restart</div>
+                  <div class="cmd-pill" onclick="setCmd('2fa')">2fa</div>
+                  <div class="cmd-pill" onclick="setCmd('loot')">loot</div>
+                  <div class="cmd-pill" onclick="setCmd('exit')">exit</div>
+                  <div class="cmd-pill" onclick="setCmd('redeem')">redeem</div>
+                  <div class="cmd-pill" onclick="setCmd('rejoinchat')">rejoinchat</div>
+                  <div class="cmd-pill" onclick="setCmd('level')">level</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">💬 Вывод</div></div>
+            <div class="card-body" style="padding:10px;">
+              <div class="log-area" id="cmdOut" style="height:500px;">
+                <div class="log-line"><span class="log-ok">[SF]</span> Консоль готова.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ LOGS PAGE ══ -->
+      <div class="page" id="page-logs">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Журнал событий</div>
+            <div class="section-sub">Последние 150 строк лога SharkFarm</div>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-ghost" onclick="scrollLog()">↓ В конец</button>
+            <button class="btn btn-ghost" onclick="clearLog()">🗑 Очистить</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:12px;">
+            <div class="log-area" id="fullLog" style="height: calc(100vh - 220px);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SETTINGS PAGE ══ -->
+      <div class="page" id="page-settings">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Настройки</div>
+            <div class="section-sub">Подключение и параметры</div>
+          </div>
+        </div>
+        <div class="grid-2" style="align-items:start;">
+          <div>
+            <div class="card mb-16">
+              <div class="card-header"><div class="card-title">🔌 API Подключение</div></div>
+              <div class="card-body">
+                <div class="form-group">
+                  <div class="form-label">Хост</div>
+                  <input class="form-input" id="sHost" placeholder="localhost">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Порт</div>
+                  <input class="form-input" id="sPort" type="number" placeholder="1242">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">IPCPassword (оставь пустым если не задан)</div>
+                  <input class="form-input" id="sPass" type="password" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary btn-full" style="height:44px;" onclick="saveSettings()">💾 Сохранить и переподключить</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">🦈 О программе</div></div>
+              <div class="card-body" style="text-align:center;">
+                <div class="about-logo-big">
+                  <div class="about-logo-ring"></div>
+                  <div class="about-logo-inner">🦈</div>
+                </div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;">SharkFarm</div>
+                <div style="font-size:13px;color:var(--text3);margin:6px 0 20px;" id="aboutVer2">Desktop WebUI</div>
+                <div class="divider"></div>
+                <div style="display:flex;gap:10px;justify-content:center;">
+                  <button class="btn btn-danger" onclick="confirmShutdown()">⏻ Shutdown SharkFarm</button>
+                  <a class="btn btn-ghost" href="https://github.com/SharkFarmNET/SharkFarm" target="_blank">GitHub</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ══ FAB (bots page) ══ -->
+<button class="btn btn-primary" id="fab" onclick="openAddBot()"
+  style="display:none;position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;font-size:22px;box-shadow:0 4px 24px rgba(230,57,70,.5);z-index:100;">+</button>
+
+<!-- ══ MODAL: Add Bot ══ -->
+<div class="modal-overlay" id="modalAddBot" onclick="if(event.target===this)closeModal('modalAddBot')">
+  <div class="modal">
+    <h3>🤖 Добавить бота</h3>
+    <div class="form-group">
+      <div class="form-label">Имя бота</div>
+      <input class="form-input" id="nb-name" placeholder="MyBot">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Steam логин</div>
+      <input class="form-input" id="nb-login" placeholder="steam_username">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Пароль Steam</div>
+      <input class="form-input" id="nb-pass" type="password">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Активен</div>
+      <select class="form-input" id="nb-en">
+        <option value="true">Да</option>
+        <option value="false">Нет</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddBot')">Отмена</button>
+      <button class="btn btn-primary" onclick="addBot()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Shutdown ══ -->
+<div class="modal-overlay" id="modalShutdown" onclick="if(event.target===this)closeModal('modalShutdown')">
+  <div class="modal">
+    <h3>⏻ Выключить SharkFarm?</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">Все боты будут остановлены. Продолжить?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalShutdown')">Отмена</button>
+      <button class="btn btn-danger" onclick="doShutdown()">Выключить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ══ Config ══
+let API_HOST = localStorage.getItem('sf_host') || 'localhost';
+let API_PORT = localStorage.getItem('sf_port') || '1242';
+let API_PASS = localStorage.getItem('sf_pass') || '';
+let BASE = () => `http://${API_HOST}:${API_PORT}/Api`;
+let startTs = Date.now();
+let botsCache = {};
+let connected = false;
+
+const PAGE_TITLES = {
+  dash: ['Dashboard', 'Обзор системы'],
+  bots: ['Боты', 'Управление аккаунтами'],
+  cmd:  ['Консоль', 'Командный интерфейс'],
+  logs: ['Логи', 'Журнал событий'],
+  settings: ['Настройки', 'Конфигурация подключения'],
+};
+
+// ══ Navigation ══
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id)?.classList.add('active');
+  document.getElementById('nav-' + id)?.classList.add('active');
+  document.getElementById('fab').style.display = id === 'bots' ? 'flex' : 'none';
+  const [title, sub] = PAGE_TITLES[id] || [id, ''];
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('topbarSub').textContent = sub;
+  if (id === 'settings') fillSettings();
+  if (id === 'logs') { scrollLog(); }
+}
+
+// ══ API ══
+async function api(path, method = 'GET', body = null) {
+  const h = { 'Content-Type': 'application/json' };
+  if (API_PASS) h['Authentication'] = API_PASS;
+  const opts = { method, headers: h };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(BASE() + path, opts);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+// ══ Status ══
+function setConnected(ok) {
+  connected = ok;
+  const s = document.getElementById('sidebarStatus');
+  const t = document.getElementById('statusText');
+  s.className = 'sidebar-status' + (ok ? '' : ' offline');
+  t.textContent = ok ? 'Online' : 'Offline';
+}
+
+// ══ Bot helpers ══
+function botClass(bot) {
+  if (!bot.KeepRunning) return 'bc-offline';
+  if ((bot.CardsFarmer?.CurrentGamesFarming?.length || 0) > 0) return 'bc-farming';
+  if (bot.IsConnectedAndLoggedOn) return 'bc-online';
+  return 'bc-idle';
+}
+function botStatusBadge(bot) {
+  const c = botClass(bot);
+  const map = {
+    'bc-online':  ['sb-online',  '🟢 Онлайн'],
+    'bc-farming': ['sb-farming', '🎮 Фармит'],
+    'bc-idle':    ['sb-idle',    '🟡 Ожидание'],
+    'bc-offline': ['sb-offline', '⚫ Оффлайн'],
+  };
+  const [cls, label] = map[c];
+  return `<span class="status-badge ${cls}">${label}</span>`;
+}
+function botRingClass(bot) {
+  const c = botClass(bot);
+  return { 'bc-online':'ring-online', 'bc-farming':'ring-farming', 'bc-idle':'ring-idle', 'bc-offline':'' }[c];
+}
+
+// Render row for dashboard table
+function renderBotRow(name, bot) {
+  const bc = botClass(bot);
+  const rc = botRingClass(bot);
+  const games = bot.CardsFarmer?.CurrentGamesFarming || [];
+  const gameStr = games.map(g => g.GameName || g.AppID).join(', ') || (bot.IsConnectedAndLoggedOn ? 'Бездействует' : '—');
+  const cards = bot.CardsFarmer?.GamesToFarm?.reduce((a,g)=>a+(g.CardsRemaining||0),0) || 0;
+  const gcount = bot.CardsFarmer?.GamesToFarm?.length || 0;
+  const pct = cards > 0 ? Math.min(95, Math.max(5, (1 - cards/Math.max(cards,1))*100)) : 0;
+  return `<tr>
+    <td>
+      <div class="bot-avatar-sm">
+        ${rc ? `<div class="bot-ring-sm ${rc}"></div>` : ''}
+        <div style="position:relative;z-index:2;">🦈</div>
+      </div>
+    </td>
+    <td><div class="bot-name-cell">${esc(name)}</div><div style="font-size:11px;color:var(--text3);">${esc(bot.AccountName||'')}</div></td>
+    <td>${botStatusBadge(bot)}</td>
+    <td class="bot-game-cell">${esc(gameStr)}</td>
+    <td style="font-size:12px;color:${cards>0?'var(--cyan)':'var(--text3)'};">${cards > 0 ? cards+' / '+gcount+' игр' : '—'}</td>
+    <td>${bc==='bc-farming'&&cards>0 ? `<div class="progress-mini"><div class="progress-mini-fill" style="width:${pct}%"></div></div>` : '—'}</td>
+    <td>
+      <div style="display:flex;gap:5px;">
+        <button class="btn btn-success btn-sm btn-icon" onclick="resumeBot('${esc(name)}')" title="Старт">▶</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="pauseBot('${esc(name)}')" title="Пауза">⏸</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteBot('${esc(name)}')" title="Удалить">🗑</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+// Render full card for bots page
+function renderBotCard(name, bot) {
+  const bc = botClass(bot);
+  const games = bot.CardsFarmer?.CurrentGamesFarming || [];
+  const detail = games.length ? '🎮 ' + games.map(g=>g.GameName||g.AppID).join(', ')
+                              : (bot.IsConnectedAndLoggedOn ? '✅ ' + (bot.AccountName||name) : '❌ Не подключён');
+  const cards = bot.CardsFarmer?.GamesToFarm?.reduce((a,g)=>a+(g.CardsRemaining||0),0) || 0;
+  const gcount = bot.CardsFarmer?.GamesToFarm?.length || 0;
+  return `<div class="bot-card-full ${bc}">
+    <div class="bot-card-top"></div>
+    <div class="bot-card-body">
+      <div class="bot-avatar-lg">
+        <div class="bot-ring-lg"></div>
+        <div style="position:relative;z-index:2;">🦈</div>
+      </div>
+      <div class="bot-info">
+        <div class="bot-name-lg">${esc(name)}</div>
+        <div class="bot-detail-lg">${esc(detail)}</div>
+        ${cards>0 ? `<div style="margin-top:6px;"><div style="font-size:10px;color:var(--text3);margin-bottom:3px;">${cards} карточек · ${gcount} игр</div><div class="progress-mini" style="width:100%;"><div class="progress-mini-fill" style="width:${Math.min(90,Math.max(5,(1-cards/Math.max(cards,1))*100))}%"></div></div></div>` : ''}
+      </div>
+      ${botStatusBadge(bot)}
+    </div>
+    <div class="bot-card-footer">
+      <button class="btn btn-success btn-sm" style="flex:1;" onclick="resumeBot('${esc(name)}')">▶ Старт</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="pauseBot('${esc(name)}')">⏸ Пауза</button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteBot('${esc(name)}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ══ Load Bots ══
+async function loadBots() {
+  try {
+    const res = await api('/Bot/ASF');
+    if (!res?.Result) { setConnected(false); return; }
+    setConnected(true);
+    botsCache = res.Result;
+    const names = Object.keys(botsCache);
+    const active  = names.filter(n => botsCache[n].IsConnectedAndLoggedOn).length;
+    const farming = names.filter(n => (botsCache[n].CardsFarmer?.CurrentGamesFarming?.length||0)>0).length;
+    const cards   = names.reduce((a,n)=>a+(botsCache[n].CardsFarmer?.GamesToFarm?.reduce((b,g)=>b+(g.CardsRemaining||0),0)||0),0);
+
+    // Topbar
+    document.getElementById('tb-online').textContent  = active;
+    document.getElementById('tb-farming').textContent = farming;
+    document.getElementById('tb-cards').textContent   = cards || '—';
+
+    // Stat cards
+    document.getElementById('st-online').textContent  = active;
+    document.getElementById('st-total').textContent   = names.length;
+    document.getElementById('st-farming').textContent = farming;
+    document.getElementById('st-cards').textContent   = cards || '—';
+
+    // Sidebar hero
+    document.getElementById('ds-active').textContent  = active;
+    document.getElementById('ds-farming').textContent = farming;
+    document.getElementById('ds-total').textContent   = names.length;
+
+    // Nav badge
+    const badge = document.getElementById('botBadge');
+    badge.textContent = names.length;
+    badge.style.display = names.length ? 'inline' : 'none';
+
+    const noBots = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text3);">Нет ботов. Нажми + чтобы добавить.</td></tr>';
+    const noCards = '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Нет ботов.</div>';
+
+    document.getElementById('dashBotTable').innerHTML  = names.length ? names.map(n=>renderBotRow(n,botsCache[n])).join('') : noBots;
+    document.getElementById('fullBotList').innerHTML   = names.length ? names.map(n=>renderBotCard(n,botsCache[n])).join('') : noCards;
+
+    const sel = document.getElementById('cmdBotSel');
+    sel.innerHTML = '<option value="">— SharkFarm (все) —</option>' + names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+
+  } catch {
+    setConnected(false);
+    const err = `<tr><td colspan="7"><div class="error-banner" style="margin:12px;">
+      <div class="error-banner-icon">⚡</div>
+      <div>Нет подключения к SharkFarm.<br><span style="font-size:11px;">Проверь что бэкенд запущен на ${API_HOST}:${API_PORT}</span></div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('settings')" style="margin-left:auto;">Настройки</button>
+    </div></td></tr>`;
+    document.getElementById('dashBotTable').innerHTML = err;
+  }
+}
+
+// ══ Version ══
+async function loadVersion() {
+  try {
+    const res = await api('/ASF');
+    const v = res?.Result?.Version;
+    if (v) {
+      const ver = 'v' + v;
+      document.getElementById('statusVer').textContent  = ver;
+      document.getElementById('aboutVer').textContent   = ver;
+      document.getElementById('aboutVer2').textContent  = ver + ' · Desktop UI';
+    }
+  } catch {}
+}
+
+// ══ Bot Actions ══
+async function resumeBot(name) {
+  try { await api(`/Bot/${name}/Resume`,'POST'); toast('▶ '+name+' запущен','t-ok'); setTimeout(loadBots,1200); }
+  catch { toast('Ошибка','t-err'); }
+}
+async function pauseBot(name) {
+  try { await api(`/Bot/${name}/Pause`,'POST',{Permanent:false}); toast('⏸ '+name+' пауза','t-ok'); setTimeout(loadBots,1200); }
+  catch { toast('Ошибка','t-err'); }
+}
+async function deleteBot(name) {
+  if (!confirm(`Удалить бота "${name}"?`)) return;
+  try { await api(`/Bot/${name}`,'DELETE'); toast('🗑 '+name+' удалён','t-inf'); setTimeout(loadBots,1200); }
+  catch { toast('Ошибка','t-err'); }
+}
+async function startAllBots() {
+  for (const n of Object.keys(botsCache)) { try { await api(`/Bot/${n}/Resume`,'POST'); } catch {} }
+  toast('▶ Все боты запущены','t-ok'); setTimeout(loadBots,2000);
+}
+async function stopAllBots() {
+  for (const n of Object.keys(botsCache)) { try { await api(`/Bot/${n}/Pause`,'POST',{Permanent:false}); } catch {} }
+  toast('⏹ Все остановлены','t-inf'); setTimeout(loadBots,2000);
+}
+
+// ══ Add Bot ══
+function openAddBot() { document.getElementById('modalAddBot').classList.add('open'); }
+async function addBot() {
+  const name  = document.getElementById('nb-name').value.trim();
+  const login = document.getElementById('nb-login').value.trim();
+  const pass  = document.getElementById('nb-pass').value;
+  const en    = document.getElementById('nb-en').value === 'true';
+  if (!name || !login) { toast('Заполни имя и логин','t-err'); return; }
+  try {
+    await api(`/Bot/${name}`,'POST',{SteamLogin:login,SteamPassword:pass,Enabled:en});
+    toast('✅ Бот добавлен','t-ok'); closeModal('modalAddBot'); setTimeout(loadBots,1200);
+  } catch { toast('Ошибка добавления','t-err'); }
+}
+
+// ══ Commands ══
+function setCmd(c)      { document.getElementById('cmdInput').value = c; document.getElementById('cmdInput').focus(); }
+function setQuickCmd(c) { document.getElementById('quickCmd').value = c; document.getElementById('quickCmd').focus(); }
+
+async function sendCmd() {
+  const bot = document.getElementById('cmdBotSel').value;
+  const cmd = document.getElementById('cmdInput').value.trim();
+  if (!cmd) return;
+  const out = document.getElementById('cmdOut');
+  const ts  = new Date().toLocaleTimeString();
+  out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-warn"> [YOU→${bot||'SF'}]</span> ${esc(cmd)}</div>`;
+  document.getElementById('cmdInput').value = '';
+  try {
+    const ep  = bot ? `/Bot/${bot}/Command` : '/Command';
+    const res = await api(ep,'POST',{Command:cmd});
+    const reply = esc(String(res?.Result ?? res?.Message ?? 'OK'));
+    out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-ok"> [SF]</span> ${reply}</div>`;
+  } catch {
+    out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-err"> [ERR]</span> Нет связи</div>`;
+  }
+  out.scrollTop = out.scrollHeight;
+}
+
+async function sendQuickCmd() {
+  const cmd = document.getElementById('quickCmd').value.trim();
+  if (!cmd) return;
+  const out = document.getElementById('quickOut');
+  const ts  = new Date().toLocaleTimeString();
+  out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-warn"> ›</span> ${esc(cmd)}</div>`;
+  document.getElementById('quickCmd').value = '';
+  try {
+    const res = await api('/Command','POST',{Command:cmd});
+    const reply = esc(String(res?.Result ?? res?.Message ?? 'OK'));
+    out.innerHTML += `<div class="log-line"><span class="log-time">${ts}</span><span class="log-ok"> ‹</span> ${reply}</div>`;
+  } catch {
+    out.innerHTML += `<div class="log-line"><span class="log-err"> [ERR]</span> Нет связи</div>`;
+  }
+  out.scrollTop = out.scrollHeight;
+}
+
+// ══ Logs ══
+async function loadLog() {
+  try {
+    const res = await api('/NLog');
+    const lines = (res?.Result || []).slice(-150);
+    const toHtml = lines => lines.map(l => {
+      const t = esc(String(l));
+      let cls = 'log-info';
+      if (/error|exception|fail/i.test(t)) cls = 'log-err';
+      else if (/warn/i.test(t)) cls = 'log-warn';
+      else if (/success|card|add|redeem/i.test(t)) cls = 'log-ok';
+      return `<div class="log-line"><span class="${cls}">${t}</span></div>`;
+    }).join('');
+    document.getElementById('fullLog').innerHTML  = toHtml(lines) || '<div class="log-line" style="color:var(--text3);">Нет логов.</div>';
+    document.getElementById('dashLog').innerHTML  = toHtml(lines.slice(-40));
+    scrollLog();
+  } catch {}
+}
+function clearLog() { ['fullLog','dashLog'].forEach(id => document.getElementById(id).innerHTML = ''); }
+function scrollLog() {
+  ['fullLog','dashLog'].forEach(id => { const el = document.getElementById(id); el.scrollTop = el.scrollHeight; });
+}
+
+// ══ Settings ══
+function fillSettings() {
+  document.getElementById('sHost').value = API_HOST;
+  document.getElementById('sPort').value = API_PORT;
+  document.getElementById('sPass').value = API_PASS;
+}
+function saveSettings() {
+  API_HOST = document.getElementById('sHost').value.trim() || 'localhost';
+  API_PORT = document.getElementById('sPort').value.trim() || '1242';
+  API_PASS = document.getElementById('sPass').value;
+  localStorage.setItem('sf_host', API_HOST);
+  localStorage.setItem('sf_port', API_PORT);
+  localStorage.setItem('sf_pass', API_PASS);
+  toast('💾 Сохранено','t-ok');
+  refreshAll();
+}
+
+// ══ Shutdown ══
+function confirmShutdown() { document.getElementById('modalShutdown').classList.add('open'); }
+async function doShutdown() {
+  closeModal('modalShutdown');
+  try { await api('/ASF/Exit','POST'); toast('Завершение работы…','t-inf'); } catch {}
+}
+
+// ══ Uptime ══
+function updateUptime() {
+  const s = Math.floor((Date.now()-startTs)/1000);
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  document.getElementById('st-uptime').textContent = h > 0 ? `${h}ч ${m}м` : `${m}м`;
+}
+
+// ══ Utils ══
+function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toast(msg, cls='t-ok') {
+  const el = Object.assign(document.createElement('div'), { className: 'toast '+cls, textContent: msg });
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ══ Refresh ══
+async function refreshAll() {
+  await loadBots();
+  await loadVersion();
+  await loadLog();
+}
+
+// ══ Init ══
+fillSettings();
+refreshAll();
+setInterval(refreshAll, 10000);
+setInterval(updateUptime, 1000);
+</script>
+</body>
+</html>

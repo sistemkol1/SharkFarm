@@ -1,0 +1,49 @@
+﻿name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build SharkFarm
+        run: dotnet publish SharkFarm/SharkFarm.csproj -r win-x64 -o ./out/win-x64 --self-contained -c Release
+
+      - name: Copy UI
+        run: |
+          New-Item -ItemType Directory -Path "./out/win-x64/www" -Force
+          Copy-Item "resources/SharkFarm_WebUI_desktop.html" "./out/win-x64/www/index.html"
+
+      - name: Create ZIP
+        run: Compress-Archive -Path "./out/win-x64/*" -DestinationPath "./SharkFarm-win-x64.zip"
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: SharkFarm-win-x64.zip
+          name: SharkFarm ${{ github.ref_name }}
+          body: |
+            ## SharkFarm ${{ github.ref_name }}
+            
+            ### Установка
+            1. Скачай `SharkFarm-win-x64.zip`
+            2. Распакуй в любую папку
+            3. Запусти `SharkFarm.exe`
+            4. Открой браузер: `http://localhost:1242`
