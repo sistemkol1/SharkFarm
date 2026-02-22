@@ -1,4 +1,4 @@
-﻿name: Release
+name: Release
 
 on:
   push:
@@ -26,13 +26,17 @@ jobs:
       - name: Build SharkFarm
         run: dotnet publish SharkFarm/SharkFarm.csproj -r win-x64 -o ./out/win-x64 --self-contained -c Release
 
-      - name: Copy UI
+      - name: Prepare release structure
         run: |
-          New-Item -ItemType Directory -Path "./out/win-x64/www" -Force
-          Copy-Item "resources/SharkFarm_WebUI_desktop.html" "./out/win-x64/www/index.html"
+          New-Item -ItemType Directory -Path "./release/SharkFarm/config"  -Force
+          New-Item -ItemType Directory -Path "./release/SharkFarm/logs"     -Force
+          New-Item -ItemType Directory -Path "./release/SharkFarm/plugins"  -Force
+          New-Item -ItemType Directory -Path "./release/SharkFarm/www"      -Force
+          Copy-Item "./out/win-x64/*" "./release/SharkFarm/" -Recurse -Force
+          Copy-Item "resources/SharkFarm_WebUI_desktop.html" "./release/SharkFarm/www/index.html" -Force
 
       - name: Create ZIP
-        run: Compress-Archive -Path "./out/win-x64/*" -DestinationPath "./SharkFarm-win-x64.zip"
+        run: Compress-Archive -Path "./release/SharkFarm" -DestinationPath "./SharkFarm-win-x64.zip"
 
       - name: Publish Release
         uses: softprops/action-gh-release@v2
@@ -40,10 +44,16 @@ jobs:
           files: SharkFarm-win-x64.zip
           name: SharkFarm ${{ github.ref_name }}
           body: |
-            ## SharkFarm ${{ github.ref_name }}
-            
+            ## 🦈 SharkFarm ${{ github.ref_name }}
+
             ### Установка
             1. Скачай `SharkFarm-win-x64.zip`
             2. Распакуй в любую папку
             3. Запусти `SharkFarm.exe`
             4. Открой браузер: `http://localhost:1242`
+
+            ### Структура папок
+            - `config/` — сюда клади JSON файлы аккаунтов
+            - `logs/` — логи работы программы
+            - `plugins/` — плагины
+            - `www/` — веб-интерфейс
