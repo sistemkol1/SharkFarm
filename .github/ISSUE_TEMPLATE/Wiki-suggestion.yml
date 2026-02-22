@@ -8,13 +8,13 @@ body:
       label: Checklist
       description: Ensure that our wiki suggestion form is appropriate for you.
       options:
-        - label: I read and understood ASF's **[Contributing guidelines](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/.github/CONTRIBUTING.md)**
+        - label: I read and understood ASF's **[Contributing guidelines](https://github.com/SharkFarmNET/SharkFarm/blob/main/.github/CONTRIBUTING.md)**
           required: true
-        - label: I also read **[Setting-up](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Setting-up)** and **[FAQ](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/FAQ)**, I don't need **[help](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/.github/SUPPORT.md)**, this is a wiki suggestion
+        - label: I also read **[Setting-up](https://github.com/SharkFarmNET/SharkFarm/wiki/Setting-up)** and **[FAQ](https://github.com/SharkFarmNET/SharkFarm/wiki/FAQ)**, I don't need **[help](https://github.com/SharkFarmNET/SharkFarm/blob/main/.github/SUPPORT.md)**, this is a wiki suggestion
           required: true
-        - label: This is not a **[translation issue](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Localization)**
+        - label: This is not a **[translation issue](https://github.com/SharkFarmNET/SharkFarm/wiki/Localization)**
           required: true
-        - label: This is not **[ASF-ui wiki suggestion](https://github.com/JustArchiNET/ASF-ui/issues/new/choose)**
+        - label: This is not **[ASF-ui wiki suggestion](https://github.com/SharkFarmNET/ASF-ui/issues/new/choose)**
           required: true
   - type: input
     id: wiki-page
@@ -23,7 +23,7 @@ body:
       description: |
         If this is a suggestion regarding an existing wiki page, please link it for reference.
         If the wiki page doesn't exist, suggest its title.
-      placeholder: https://github.com/JustArchiNET/ArchiSteamFarm/wiki/???
+      placeholder: https://github.com/SharkFarmNET/SharkFarm/wiki/???
     validations:
       required: true
   - type: textarea

@@ -69,7 +69,7 @@ jobs:
       run: |
         set -eu
 
-        git add -A "ArchiSteamFarm/Localization" "ArchiSteamFarm.OfficialPlugins.ItemsMatcher/Localization" "ArchiSteamFarm.OfficialPlugins.MobileAuthenticator/Localization" "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/Localization" "wiki"
+        git add -A "SharkFarm/Localization" "SharkFarm.OfficialPlugins.ItemsMatcher/Localization" "SharkFarm.OfficialPlugins.MobileAuthenticator/Localization" "SharkFarm.OfficialPlugins.SteamTokenDumper/Localization" "wiki"
 
         if ! git diff --cached --quiet; then
             git commit -m "Automatic translations update"

@@ -1,39 +1,39 @@
 <div align="center">
 
-![Icon](https://raw.githubusercontent.com/JustArchiNET/ArchiSteamFarm/main/resources/ASF_184x184.png)
+![Icon](https://raw.githubusercontent.com/SharkFarmNET/SharkFarm/main/resources/ASF_184x184.png)
 
-# ArchiSteamFarm
+# SharkFarm
 </div>
 
-[![Build status (GitHub)](https://img.shields.io/github/actions/workflow/status/JustArchiNET/ArchiSteamFarm/ci.yml?branch=main&label=Build&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/actions?query=workflow%3AASF-ci+branch%3Amain)
-[![Build status (Docker)](https://img.shields.io/github/actions/workflow/status/JustArchiNET/ArchiSteamFarm/docker-publish-main.yml?branch=main&label=Docker&logo=docker&cacheSeconds=600)](https://hub.docker.com/r/justarchi/archisteamfarm)
-[![Github last commit date](https://img.shields.io/github/last-commit/JustArchiNET/ArchiSteamFarm.svg?label=Updated&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/commits)
-[![Total downloads](https://img.shields.io/github/downloads/JustArchiNET/ArchiSteamFarm/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases)
-[![License](https://img.shields.io/github/license/JustArchiNET/ArchiSteamFarm.svg?label=License&logo=apache&cacheSeconds=2592000)](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/LICENSE.txt)
+[![Build status (GitHub)](https://img.shields.io/github/actions/workflow/status/SharkFarmNET/SharkFarm/ci.yml?branch=main&label=Build&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/actions?query=workflow%3AASF-ci+branch%3Amain)
+[![Build status (Docker)](https://img.shields.io/github/actions/workflow/status/SharkFarmNET/SharkFarm/docker-publish-main.yml?branch=main&label=Docker&logo=docker&cacheSeconds=600)](https://hub.docker.com/r/SharkFarmDev/SharkFarm)
+[![Github last commit date](https://img.shields.io/github/last-commit/SharkFarmNET/SharkFarm.svg?label=Updated&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/commits)
+[![Total downloads](https://img.shields.io/github/downloads/SharkFarmNET/SharkFarm/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases)
+[![License](https://img.shields.io/github/license/SharkFarmNET/SharkFarm.svg?label=License&logo=apache&cacheSeconds=2592000)](https://github.com/SharkFarmNET/SharkFarm/blob/main/LICENSE.txt)
 
-[![Localization](https://badges.crowdin.net/archisteamfarm/localized.svg)](https://crowdin.com/project/archisteamfarm)
-[![ConfigGenerator status](https://img.shields.io/website-up-down-green-red/https/justarchinet.github.io/ASF-WebConfigGenerator.svg?label=ConfigGenerator&logo=html5&cacheSeconds=3600)](https://justarchinet.github.io/ASF-WebConfigGenerator)
-[![Statistics](https://img.shields.io/badge/Statistics-online-green.svg?logo=html5)](https://asf.justarchi.net)
+[![Localization](https://badges.crowdin.net/SharkFarm/localized.svg)](https://crowdin.com/project/SharkFarm)
+[![ConfigGenerator status](https://img.shields.io/website-up-down-green-red/https/SharkFarmNET.github.io/ASF-WebConfigGenerator.svg?label=ConfigGenerator&logo=html5&cacheSeconds=3600)](https://SharkFarmNET.github.io/ASF-WebConfigGenerator)
+[![Statistics](https://img.shields.io/badge/Statistics-online-green.svg?logo=html5)](https://asf.SharkFarmDev.net)
 [![Steam group](https://img.shields.io/badge/Steam-group-yellowgreen.svg?logo=steam)](https://steamcommunity.com/groups/archiasf)
 [![Discord](https://img.shields.io/discord/267292556709068800.svg?color=7289da&label=Discord&logo=discord&logoColor=white&cacheSeconds=3600)](https://discord.gg/hSQgt8j)
-[![Wiki](https://img.shields.io/badge/Read-wiki-cc5490.svg?logo=github)](https://github.com/JustArchiNET/ArchiSteamFarm/wiki)
+[![Wiki](https://img.shields.io/badge/Read-wiki-cc5490.svg?logo=github)](https://github.com/SharkFarmNET/SharkFarm/wiki)
 
-[![GitHub stable release version](https://img.shields.io/github/v/release/JustArchiNET/ArchiSteamFarm.svg?label=Stable&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases/latest)
-[![GitHub stable release date](https://img.shields.io/github/release-date/JustArchiNET/ArchiSteamFarm.svg?label=Released&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases/latest)
-[![Github stable release downloads](https://img.shields.io/github/downloads/JustArchiNET/ArchiSteamFarm/latest/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases/latest)
+[![GitHub stable release version](https://img.shields.io/github/v/release/SharkFarmNET/SharkFarm.svg?label=Stable&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases/latest)
+[![GitHub stable release date](https://img.shields.io/github/release-date/SharkFarmNET/SharkFarm.svg?label=Released&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases/latest)
+[![Github stable release downloads](https://img.shields.io/github/downloads/SharkFarmNET/SharkFarm/latest/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases/latest)
 
-[![GitHub pre-release version](https://img.shields.io/github/v/release/JustArchiNET/ArchiSteamFarm?include_prereleases&label=Pre-release&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases)
-[![GitHub pre-release date](https://img.shields.io/github/release-date-pre/JustArchiNET/ArchiSteamFarm.svg?label=Released&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases)
-[![Github pre-release downloads](https://img.shields.io/github/downloads-pre/JustArchiNET/ArchiSteamFarm/latest/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/JustArchiNET/ArchiSteamFarm/releases)
+[![GitHub pre-release version](https://img.shields.io/github/v/release/SharkFarmNET/SharkFarm?include_prereleases&label=Pre-release&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases)
+[![GitHub pre-release date](https://img.shields.io/github/release-date-pre/SharkFarmNET/SharkFarm.svg?label=Released&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases)
+[![Github pre-release downloads](https://img.shields.io/github/downloads-pre/SharkFarmNET/SharkFarm/latest/total.svg?label=Downloads&logo=github&cacheSeconds=600)](https://github.com/SharkFarmNET/SharkFarm/releases)
 
 ---
 
 ## Donate
 
-[![GitHub sponsor](https://img.shields.io/badge/GitHub-sponsor-ea4aaa.svg?logo=github-sponsors)](https://github.com/sponsors/JustArchi)
-[![PayPal.me donate](https://img.shields.io/badge/PayPal.me-donate-00457c.svg?logo=paypal)](https://paypal.me/JustArchi)
+[![GitHub sponsor](https://img.shields.io/badge/GitHub-sponsor-ea4aaa.svg?logo=github-sponsors)](https://github.com/sponsors/SharkFarmDev)
+[![PayPal.me donate](https://img.shields.io/badge/PayPal.me-donate-00457c.svg?logo=paypal)](https://paypal.me/SharkFarmDev)
 [![PayPal donate](https://img.shields.io/badge/PayPal-donate-00457c.svg?logo=paypal)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HD2P2P3WGS5Y4)
-[![Revolut donate](https://img.shields.io/badge/Revolut-donate-0075eb.svg?logo=revolut)](https://pay.revolut.com/justarchi)
+[![Revolut donate](https://img.shields.io/badge/Revolut-donate-0075eb.svg?logo=revolut)](https://pay.revolut.com/SharkFarmDev)
 [![Steam donate](https://img.shields.io/badge/Steam-donate-000000.svg?logo=steam)](https://steamcommunity.com/tradeoffer/new/?partner=46697991&token=0ix2Ruv_)
 
 [![BTC donate](https://img.shields.io/badge/BTC-donate-f7931a.svg?logo=bitcoin)](https://www.blockchain.com/explorer/addresses/btc/3HwcgZbtoF5vSxJkNUvThVSJipKi7r5EqU)
@@ -43,7 +43,7 @@
 
 ---
 
-[![Repobeats analytics image](https://repobeats.axiom.co/api/embed/7a3672ae3c424e1c04e25afe6ef553652e788130.svg "Repobeats analytics image")](https://github.com/JustArchiNET/ArchiSteamFarm/pulse)
+[![Repobeats analytics image](https://repobeats.axiom.co/api/embed/7a3672ae3c424e1c04e25afe6ef553652e788130.svg "Repobeats analytics image")](https://github.com/SharkFarmNET/SharkFarm/pulse)
 
 ---
 
@@ -71,22 +71,22 @@ Today, ASF is one of the most versatile Steam power tools, allowing you to make 
 - Powered by .NET Core, cross-OS compatibility, official support for Windows, Linux and macOS
 - ...and many more!
 
-For learning about even more ASF features, we recommend starting with our **[FAQ entry](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/FAQ#what-interesting-features-asf-offers-that-idle-master-does-not)**.
+For learning about even more ASF features, we recommend starting with our **[FAQ entry](https://github.com/SharkFarmNET/SharkFarm/wiki/FAQ#what-interesting-features-asf-offers-that-idle-master-does-not)**.
 
 ---
 
 ### Setting up / Help
 
-Detailed guide regarding setting up and using ASF is available on our wiki in **[setting up](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Setting-up)** section. It's user-friendly guide that shows basic, as well as a bit more complex ASF setup, covering all the required dependencies and other steps that are required in order to start using ASF software.
+Detailed guide regarding setting up and using ASF is available on our wiki in **[setting up](https://github.com/SharkFarmNET/SharkFarm/wiki/Setting-up)** section. It's user-friendly guide that shows basic, as well as a bit more complex ASF setup, covering all the required dependencies and other steps that are required in order to start using ASF software.
 
 ---
 
 ### Compatibility / Supported operating systems
 
-ASF officially supports Windows, Linux and macOS operating systems, but it can work anywhere where you can obtain working .NET Core runtime. Please visit **[compatibility](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Compatibility)** section on the wiki for more information regarding environments that ASF can work in.
+ASF officially supports Windows, Linux and macOS operating systems, but it can work anywhere where you can obtain working .NET Core runtime. Please visit **[compatibility](https://github.com/SharkFarmNET/SharkFarm/wiki/Compatibility)** section on the wiki for more information regarding environments that ASF can work in.
 
 ---
 
 ### Want to know more?
 
-Our **[wiki](https://github.com/JustArchiNET/ArchiSteamFarm/wiki)** includes a lot of other articles that will tell you about everything in regards to ASF, as well as show you other features that you can make use of. If you have some time to spare and you'd like to find out what else ASF can do for you, we heavily encourage you to take a look!
+Our **[wiki](https://github.com/SharkFarmNET/SharkFarm/wiki)** includes a lot of other articles that will tell you about everything in regards to ASF, as well as show you other features that you can make use of. If you have some time to spare and you'd like to find out what else ASF can do for you, we heavily encourage you to take a look!

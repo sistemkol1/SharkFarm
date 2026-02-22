@@ -8,13 +8,13 @@ body:
       label: Checklist
       description: Ensure that our enhancement idea form is appropriate for you.
       options:
-        - label: I read and understood ASF's **[Contributing guidelines](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/.github/CONTRIBUTING.md)**
+        - label: I read and understood ASF's **[Contributing guidelines](https://github.com/SharkFarmNET/SharkFarm/blob/main/.github/CONTRIBUTING.md)**
           required: true
-        - label: I also read **[Setting-up](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Setting-up)** and **[FAQ](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/FAQ)**, I don't need **[help](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/.github/SUPPORT.md)**, this is an enhancement idea
+        - label: I also read **[Setting-up](https://github.com/SharkFarmNET/SharkFarm/wiki/Setting-up)** and **[FAQ](https://github.com/SharkFarmNET/SharkFarm/wiki/FAQ)**, I don't need **[help](https://github.com/SharkFarmNET/SharkFarm/blob/main/.github/SUPPORT.md)**, this is an enhancement idea
           required: true
-        - label: This is not a **[duplicate](https://github.com/JustArchiNET/ArchiSteamFarm/issues?q=is%3Aissue)** of an existing issue
+        - label: This is not a **[duplicate](https://github.com/SharkFarmNET/SharkFarm/issues?q=is%3Aissue)** of an existing issue
           required: true
-        - label: My idea doesn't duplicate existing ASF functionality described on the **[wiki](https://github.com/JustArchiNET/ArchiSteamFarm/wiki)**
+        - label: My idea doesn't duplicate existing ASF functionality described on the **[wiki](https://github.com/SharkFarmNET/SharkFarm/wiki)**
           required: true
         - label: I believe that my idea falls into ASF's scope and should be offered as part of ASF built-in functionality
           required: true
@@ -22,7 +22,7 @@ body:
           required: true
         - label: My idea doesn't violate the **[Steam Online Conduct](https://store.steampowered.com/online_conduct)**
           required: true
-        - label: This is not **[ASF-ui suggestion](https://github.com/JustArchiNET/ASF-ui/issues/new/choose)**
+        - label: This is not **[ASF-ui suggestion](https://github.com/SharkFarmNET/ASF-ui/issues/new/choose)**
           required: true
   - type: textarea
     id: enhancement-purpose

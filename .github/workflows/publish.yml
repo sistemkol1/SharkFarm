@@ -8,8 +8,8 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_SDK_VERSION: 10.0
   NODE_JS_VERSION: 'lts/*'
-  PLUGINS_BUNDLED: ArchiSteamFarm.OfficialPlugins.ItemsMatcher ArchiSteamFarm.OfficialPlugins.MobileAuthenticator ArchiSteamFarm.OfficialPlugins.SteamTokenDumper
-  PLUGINS_INCLUDED: ArchiSteamFarm.OfficialPlugins.Monitoring # Apart from declaring them here, there is certain amount of hardcoding needed below for uploading
+  PLUGINS_BUNDLED: SharkFarm.OfficialPlugins.ItemsMatcher SharkFarm.OfficialPlugins.MobileAuthenticator SharkFarm.OfficialPlugins.SteamTokenDumper
+  PLUGINS_INCLUDED: SharkFarm.OfficialPlugins.Monitoring # Apart from declaring them here, there is certain amount of hardcoding needed below for uploading
 
 permissions: {}
 
@@ -109,7 +109,7 @@ jobs:
         set -eu
 
         if [ -n "${ASF_PRIVATE_SNK-}" ]; then
-            echo "$ASF_PRIVATE_SNK" | base64 -d > "resources/ArchiSteamFarm.snk"
+            echo "$ASF_PRIVATE_SNK" | base64 -d > "resources/SharkFarm.snk"
         fi
 
     - name: Prepare private key for signing on Windows
@@ -123,16 +123,16 @@ jobs:
         $ProgressPreference = 'SilentlyContinue'
 
         if ((Test-Path env:ASF_PRIVATE_SNK) -and ($env:ASF_PRIVATE_SNK)) {
-            echo "$env:ASF_PRIVATE_SNK" > "resources\ArchiSteamFarm.snk"
+            echo "$env:ASF_PRIVATE_SNK" > "resources\SharkFarm.snk"
 
-            certutil -f -decode "resources\ArchiSteamFarm.snk" "resources\ArchiSteamFarm.snk"
+            certutil -f -decode "resources\SharkFarm.snk" "resources\SharkFarm.snk"
 
             if ($LastExitCode -ne 0) {
                 throw "Last command failed."
             }
         }
 
-    - name: Prepare ArchiSteamFarm.OfficialPlugins.SteamTokenDumper on Unix
+    - name: Prepare SharkFarm.OfficialPlugins.SteamTokenDumper on Unix
       if: startsWith(matrix.os, 'macos-') || startsWith(matrix.os, 'ubuntu-')
       env:
         STEAM_TOKEN_DUMPER_TOKEN: ${{ secrets.STEAM_TOKEN_DUMPER_TOKEN }}
@@ -140,12 +140,12 @@ jobs:
       run: |
         set -eu
 
-        if [ -n "${STEAM_TOKEN_DUMPER_TOKEN-}" ] && [ -f "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs" ]; then
-            sed "s/STEAM_TOKEN_DUMPER_TOKEN/${STEAM_TOKEN_DUMPER_TOKEN}/g" "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs" > "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs.new"
-            mv "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs.new" "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs"
+        if [ -n "${STEAM_TOKEN_DUMPER_TOKEN-}" ] && [ -f "SharkFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs" ]; then
+            sed "s/STEAM_TOKEN_DUMPER_TOKEN/${STEAM_TOKEN_DUMPER_TOKEN}/g" "SharkFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs" > "SharkFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs.new"
+            mv "SharkFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs.new" "SharkFarm.OfficialPlugins.SteamTokenDumper/SharedInfo.cs"
         fi
 
-    - name: Prepare ArchiSteamFarm.OfficialPlugins.SteamTokenDumper on Windows
+    - name: Prepare SharkFarm.OfficialPlugins.SteamTokenDumper on Windows
       if: startsWith(matrix.os, 'windows-')
       env:
         STEAM_TOKEN_DUMPER_TOKEN: ${{ secrets.STEAM_TOKEN_DUMPER_TOKEN }}
@@ -155,8 +155,8 @@ jobs:
         $ErrorActionPreference = 'Stop'
         $ProgressPreference = 'SilentlyContinue'
 
-        if ((Test-Path env:STEAM_TOKEN_DUMPER_TOKEN) -and ($env:STEAM_TOKEN_DUMPER_TOKEN) -and (Test-Path "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper\SharedInfo.cs" -PathType Leaf)) {
-            (Get-Content "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper\SharedInfo.cs").Replace('STEAM_TOKEN_DUMPER_TOKEN', "$env:STEAM_TOKEN_DUMPER_TOKEN") | Set-Content "ArchiSteamFarm.OfficialPlugins.SteamTokenDumper\SharedInfo.cs"
+        if ((Test-Path env:STEAM_TOKEN_DUMPER_TOKEN) -and ($env:STEAM_TOKEN_DUMPER_TOKEN) -and (Test-Path "SharkFarm.OfficialPlugins.SteamTokenDumper\SharedInfo.cs" -PathType Leaf)) {
+            (Get-Content "SharkFarm.OfficialPlugins.SteamTokenDumper\SharedInfo.cs").Replace('STEAM_TOKEN_DUMPER_TOKEN', "$env:STEAM_TOKEN_DUMPER_TOKEN") | Set-Content "SharkFarm.OfficialPlugins.SteamTokenDumper\SharedInfo.cs"
         }
 
     - name: Publish ASF-${{ matrix.variant }} on Unix
@@ -173,10 +173,10 @@ jobs:
             variantArgs="-p:PublishSingleFile=true -p:PublishTrimmed=true -r $VARIANT --self-contained"
         fi
 
-        dotnet publish ArchiSteamFarm -c "$CONFIGURATION" -o "out/${VARIANT}" "-p:ASFVariant=${VARIANT}" -p:ContinuousIntegrationBuild=true --nologo $variantArgs
+        dotnet publish SharkFarm -c "$CONFIGURATION" -o "out/${VARIANT}" "-p:ASFVariant=${VARIANT}" -p:ContinuousIntegrationBuild=true --nologo $variantArgs
 
         # Include .ico file for all platforms, since only Windows script can bundle it inside the exe
-        cp "resources/ASF.ico" "out/${VARIANT}/ArchiSteamFarm.ico"
+        cp "resources/ASF.ico" "out/${VARIANT}/SharkFarm.ico"
 
         # Include extra logic for builds marked for release
         case "$GITHUB_REF" in
@@ -185,7 +185,7 @@ jobs:
                 if [ -f "out/${VARIANT}/Changelog.html" ]; then
                     tag="$(echo "$GITHUB_REF" | cut -c 11-)"
 
-                    sed "s/ArchiSteamFarm\/commits\/main/ArchiSteamFarm\/releases\/tag\/${tag}/g" "out/${VARIANT}/Changelog.html" > "out/${VARIANT}/Changelog.html.new"
+                    sed "s/SharkFarm\/commits\/main/SharkFarm\/releases\/tag\/${tag}/g" "out/${VARIANT}/Changelog.html" > "out/${VARIANT}/Changelog.html.new"
                     mv "out/${VARIANT}/Changelog.html.new" "out/${VARIANT}/Changelog.html"
                 fi
                 ;;
@@ -207,15 +207,15 @@ jobs:
             $variantArgs = '-p:PublishSingleFile=true', '-p:PublishTrimmed=true', '-r', "$env:VARIANT", '--self-contained'
         }
 
-        dotnet publish ArchiSteamFarm -c "$env:CONFIGURATION" -o "out\$env:VARIANT" "-p:ASFVariant=$env:VARIANT" -p:ContinuousIntegrationBuild=true --nologo $variantArgs
+        dotnet publish SharkFarm -c "$env:CONFIGURATION" -o "out\$env:VARIANT" "-p:ASFVariant=$env:VARIANT" -p:ContinuousIntegrationBuild=true --nologo $variantArgs
 
         if ($LastExitCode -ne 0) {
             throw "Last command failed."
         }
 
         # Icon is available only in .exe Windows builds, we'll bundle the .ico file for other flavours
-        if (!(Test-Path "out\$env:VARIANT\ArchiSteamFarm.exe" -PathType Leaf)) {
-            Copy-Item 'resources\ASF.ico' "out\$env:VARIANT\ArchiSteamFarm.ico"
+        if (!(Test-Path "out\$env:VARIANT\SharkFarm.exe" -PathType Leaf)) {
+            Copy-Item 'resources\ASF.ico' "out\$env:VARIANT\SharkFarm.ico"
         }
 
         # Include extra logic for builds marked for release
@@ -224,7 +224,7 @@ jobs:
             if (Test-Path "out\$env:VARIANT\Changelog.html" -PathType Leaf) {
                 $tag = $env:GITHUB_REF.Substring(10)
 
-                (Get-Content "out\$env:VARIANT\Changelog.html").Replace('ArchiSteamFarm/commits/main', "ArchiSteamFarm/releases/tag/$tag") | Set-Content "out\$env:VARIANT\Changelog.html"
+                (Get-Content "out\$env:VARIANT\Changelog.html").Replace('SharkFarm/commits/main', "SharkFarm/releases/tag/$tag") | Set-Content "out\$env:VARIANT\Changelog.html"
             }
         }
 
@@ -346,9 +346,9 @@ jobs:
             $executableFiles = @()
 
             if ($env:VARIANT -like 'generic*') {
-                $executableFiles += 'ArchiSteamFarm.sh', 'ArchiSteamFarm-Service.sh'
+                $executableFiles += 'SharkFarm.sh', 'SharkFarm-Service.sh'
             } elseif (($env:VARIANT -like 'linux*') -or ($env:VARIANT -like 'osx*')) {
-                $executableFiles += 'ArchiSteamFarm', 'ArchiSteamFarm-Service.sh'
+                $executableFiles += 'SharkFarm', 'SharkFarm-Service.sh'
             }
 
             foreach ($executableFile in $executableFiles) {
@@ -408,20 +408,20 @@ jobs:
             fi
         done
 
-    - name: Generate artifact attestation for ArchiSteamFarm.OfficialPlugins.Monitoring
+    - name: Generate artifact attestation for SharkFarm.OfficialPlugins.Monitoring
       if: ${{ github.event_name == 'push' && matrix.os == 'ubuntu-latest' && matrix.variant == 'generic' }}
       uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f # v3.2.0
       with:
-        subject-path: out/ArchiSteamFarm.OfficialPlugins.Monitoring.zip
+        subject-path: out/SharkFarm.OfficialPlugins.Monitoring.zip
 
-    - name: Upload ArchiSteamFarm.OfficialPlugins.Monitoring
+    - name: Upload SharkFarm.OfficialPlugins.Monitoring
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.variant == 'generic' }}
       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         compression-level: 1
         if-no-files-found: error
-        name: ArchiSteamFarm.OfficialPlugins.Monitoring
-        path: out/ArchiSteamFarm.OfficialPlugins.Monitoring.zip
+        name: SharkFarm.OfficialPlugins.Monitoring
+        path: out/SharkFarm.OfficialPlugins.Monitoring.zip
 
   release:
     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
@@ -488,10 +488,10 @@ jobs:
         name: windows-latest_ASF-win-x64
         path: out
 
-    - name: Download ArchiSteamFarm.OfficialPlugins.Monitoring artifact
+    - name: Download SharkFarm.OfficialPlugins.Monitoring artifact
       uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
-        name: ArchiSteamFarm.OfficialPlugins.Monitoring
+        name: SharkFarm.OfficialPlugins.Monitoring
         path: out
 
     - name: Import GPG key for signing
@@ -534,7 +534,7 @@ jobs:
         name: SHA512SUMS.sign
         path: out/SHA512SUMS.sign
 
-    - name: Create ArchiSteamFarm GitHub release
+    - name: Create SharkFarm GitHub release
       uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
       with:
         allowUpdates: true
@@ -543,7 +543,7 @@ jobs:
         bodyFile: .github/RELEASE_TEMPLATE.md
         immutableCreate: true
         makeLatest: false
-        name: ArchiSteamFarm V${{ github.ref_name }}
+        name: SharkFarm V${{ github.ref_name }}
         prerelease: true
         token: ${{ secrets.ARCHIBOT_GITHUB_TOKEN }}
         updateOnlyUnreleased: true

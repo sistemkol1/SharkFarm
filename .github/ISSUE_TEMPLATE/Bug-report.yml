@@ -8,27 +8,27 @@ body:
       label: Checklist
       description: Ensure that our bug report form is appropriate for you.
       options:
-        - label: I read and understood ASF's **[Contributing guidelines](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/.github/CONTRIBUTING.md)**
+        - label: I read and understood ASF's **[Contributing guidelines](https://github.com/SharkFarmNET/SharkFarm/blob/main/.github/CONTRIBUTING.md)**
           required: true
-        - label: I also read **[Setting-up](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Setting-up)** and **[FAQ](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/FAQ)**, I don't need **[help](https://github.com/JustArchiNET/ArchiSteamFarm/blob/main/.github/SUPPORT.md)**, this is a bug report
+        - label: I also read **[Setting-up](https://github.com/SharkFarmNET/SharkFarm/wiki/Setting-up)** and **[FAQ](https://github.com/SharkFarmNET/SharkFarm/wiki/FAQ)**, I don't need **[help](https://github.com/SharkFarmNET/SharkFarm/blob/main/.github/SUPPORT.md)**, this is a bug report
           required: true
-        - label: This is not a **[duplicate](https://github.com/JustArchiNET/ArchiSteamFarm/issues?q=is%3Aissue)** of an existing issue
+        - label: This is not a **[duplicate](https://github.com/SharkFarmNET/SharkFarm/issues?q=is%3Aissue)** of an existing issue
           required: true
-        - label: I don't own more than **[10 accounts in total](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/FAQ#how-many-bots-can-i-run-with-asf)**
+        - label: I don't own more than **[10 accounts in total](https://github.com/SharkFarmNET/SharkFarm/wiki/FAQ#how-many-bots-can-i-run-with-asf)**
           required: true
-        - label: I'm not using **[custom plugins](https://github.com/JustArchiNET/ArchiSteamFarm/wiki/Plugins)**
+        - label: I'm not using **[custom plugins](https://github.com/SharkFarmNET/SharkFarm/wiki/Plugins)**
           required: true
-        - label: This is not a **[question](https://github.com/JustArchiNET/ArchiSteamFarm/discussions)**
+        - label: This is not a **[question](https://github.com/SharkFarmNET/SharkFarm/discussions)**
           required: true
-        - label: This is not a **[technical issue](https://github.com/JustArchiNET/ArchiSteamFarm/discussions)**
+        - label: This is not a **[technical issue](https://github.com/SharkFarmNET/SharkFarm/discussions)**
           required: true
-        - label: This is not **[ASF-ui problem](https://github.com/JustArchiNET/ASF-ui/issues/new/choose)**
+        - label: This is not **[ASF-ui problem](https://github.com/SharkFarmNET/ASF-ui/issues/new/choose)**
           required: true
   - type: dropdown
     id: version
     attributes:
       label: ASF version
-      description: If you're using a different version than the current **[stable](https://github.com/JustArchiNET/ArchiSteamFarm/releases/latest)** or **[pre-release](https://github.com/JustArchiNET/ArchiSteamFarm/releases)**, ensure that your bug report is reproducible on one of the below.
+      description: If you're using a different version than the current **[stable](https://github.com/SharkFarmNET/SharkFarm/releases/latest)** or **[pre-release](https://github.com/SharkFarmNET/SharkFarm/releases)**, ensure that your bug report is reproducible on one of the below.
       options:
         - Latest stable release
         - Latest pre-release
@@ -123,8 +123,8 @@ body:
         If the bug report doesn't come from the last run of the program, you can find logs from previous runs of the program in the `logs` directory instead.
         If no `log.txt` was recorded due to crash at the very early stage, console output should be pasted instead.
       placeholder: |
-        2021-12-16 00:20:43|dotnet-282887|INFO|ASF|InitCore() ArchiSteamFarm V5.2.1.2 (generic/6b492ffa-9927-431d-bae7-7360ab9968a9 | .NET 6.0.0-rtm.21522.10; debian-arm64; Linux 5.15.0-1-arm64 #1 SMP Debian 5.15.3-1 (2021-11-18))
-        2021-12-16 00:20:43|dotnet-282887|INFO|ASF|InitCore() Copyright © 2015-2021 JustArchiNET
+        2021-12-16 00:20:43|dotnet-282887|INFO|ASF|InitCore() SharkFarm V5.2.1.2 (generic/6b492ffa-9927-431d-bae7-7360ab9968a9 | .NET 6.0.0-rtm.21522.10; debian-arm64; Linux 5.15.0-1-arm64 #1 SMP Debian 5.15.3-1 (2021-11-18))
+        2021-12-16 00:20:43|dotnet-282887|INFO|ASF|InitCore() Copyright © 2015-2021 SharkFarmNET
         2021-12-16 00:20:47|dotnet-282887|INFO|ASF|InitPlugins() Initializing Plugins...
         2021-12-16 00:20:47|dotnet-282887|INFO|ASF|InitPlugins() Loading SteamTokenDumperPlugin V5.2.1.2...
         2021-12-16 00:20:47|dotnet-282887|INFO|ASF|InitPlugins() SteamTokenDumperPlugin has been loaded successfully!

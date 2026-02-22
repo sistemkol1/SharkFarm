@@ -2,8 +2,8 @@
 "preserve_hierarchy": true
 "files": [
   {
-    "source": "/ArchiSteamFarm/Localization/Strings.resx",
-    "translation": "/ArchiSteamFarm/Localization/Strings.%locale%.resx",
+    "source": "/SharkFarm/Localization/Strings.resx",
+    "translation": "/SharkFarm/Localization/Strings.%locale%.resx",
     "translation_replace": {
       ".bs-BA.resx": ".bs-Latn.resx",
       ".lol-US.resx": ".qps-Ploc.resx",
@@ -14,8 +14,8 @@
     }
   },
   {
-    "source": "/ArchiSteamFarm.OfficialPlugins.ItemsMatcher/Localization/Strings.resx",
-    "translation": "/ArchiSteamFarm.OfficialPlugins.ItemsMatcher/Localization/Strings.%locale%.resx",
+    "source": "/SharkFarm.OfficialPlugins.ItemsMatcher/Localization/Strings.resx",
+    "translation": "/SharkFarm.OfficialPlugins.ItemsMatcher/Localization/Strings.%locale%.resx",
     "translation_replace": {
       ".bs-BA.resx": ".bs-Latn.resx",
       ".lol-US.resx": ".qps-Ploc.resx",
@@ -26,8 +26,8 @@
     }
   },
   {
-    "source": "/ArchiSteamFarm.OfficialPlugins.MobileAuthenticator/Localization/Strings.resx",
-    "translation": "/ArchiSteamFarm.OfficialPlugins.MobileAuthenticator/Localization/Strings.%locale%.resx",
+    "source": "/SharkFarm.OfficialPlugins.MobileAuthenticator/Localization/Strings.resx",
+    "translation": "/SharkFarm.OfficialPlugins.MobileAuthenticator/Localization/Strings.%locale%.resx",
     "translation_replace": {
       ".bs-BA.resx": ".bs-Latn.resx",
       ".lol-US.resx": ".qps-Ploc.resx",
@@ -38,8 +38,8 @@
     }
   },
   {
-    "source": "/ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/Localization/Strings.resx",
-    "translation": "/ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/Localization/Strings.%locale%.resx",
+    "source": "/SharkFarm.OfficialPlugins.SteamTokenDumper/Localization/Strings.resx",
+    "translation": "/SharkFarm.OfficialPlugins.SteamTokenDumper/Localization/Strings.%locale%.resx",
     "translation_replace": {
       ".bs-BA.resx": ".bs-Latn.resx",
       ".lol-US.resx": ".qps-Ploc.resx",

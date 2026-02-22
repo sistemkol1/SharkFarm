@@ -5,14 +5,14 @@ profile:
 exclude:
   - name: All
     paths:
-      - ArchiSteamFarm/Localization
-      - ArchiSteamFarm.OfficialPlugins.ItemsMatcher/Localization
-      - ArchiSteamFarm.OfficialPlugins.MobileAuthenticator/Localization
-      - ArchiSteamFarm.OfficialPlugins.SteamTokenDumper/Localization
+      - SharkFarm/Localization
+      - SharkFarm.OfficialPlugins.ItemsMatcher/Localization
+      - SharkFarm.OfficialPlugins.MobileAuthenticator/Localization
+      - SharkFarm.OfficialPlugins.SteamTokenDumper/Localization
   - name: AsyncVoidMethod
   - name: CA1515
     paths:
-      - ArchiSteamFarm
+      - SharkFarm
   - name: InternalOrPrivateMemberNotDocumented
   - name: InvertIf
   - name: NullableWarningSuppressionIsUsed

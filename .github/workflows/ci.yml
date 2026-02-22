@@ -34,8 +34,8 @@ jobs:
     - name: Verify .NET Core
       run: dotnet --info
 
-    - name: Build ${{ matrix.configuration }} ArchiSteamFarm and other projects
+    - name: Build ${{ matrix.configuration }} SharkFarm and other projects
       run: dotnet build -c "${{ matrix.configuration }}" -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --nologo
 
-    - name: Run ${{ matrix.configuration }} ArchiSteamFarm.Tests
-      run: dotnet test ArchiSteamFarm.Tests -c "${{ matrix.configuration }}" -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --filter TestCategory!=Manual --nologo
+    - name: Run ${{ matrix.configuration }} SharkFarm.Tests
+      run: dotnet test SharkFarm.Tests -c "${{ matrix.configuration }}" -p:ContinuousIntegrationBuild=true -p:UseAppHost=false --filter TestCategory!=Manual --nologo
