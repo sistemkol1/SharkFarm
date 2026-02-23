@@ -54,7 +54,9 @@ jobs:
 
       - name: Copy UI
         run: |
-          Copy-Item "resources/SharkFarm_WebUI_desktop.html" "./release/SharkFarm/www/index.html" -Force
+          Copy-Item "www/index.html" "./release/SharkFarm/www/index.html" -Force
+          Copy-Item "www/favicon.ico" "./release/SharkFarm/www/favicon.ico" -Force
+          [System.IO.File]::WriteAllText("./release/SharkFarm/Open WebUI.url", "[InternetShortcut]`r`nURL=http://localhost:1242/")
 
       - name: Create ZIP
         run: Compress-Archive -Path "./release/SharkFarm" -DestinationPath "./SharkFarm-win-x64.zip"
@@ -65,17 +67,17 @@ jobs:
           files: SharkFarm-win-x64.zip
           name: SharkFarm ${{ github.ref_name }}
           body: |
-            ## 🦈 SharkFarm ${{ github.ref_name }}
+            ## рџ¦€ SharkFarm ${{ github.ref_name }}
 
-            ### Установка
-            1. Скачай `SharkFarm-win-x64.zip`
-            2. Распакуй в любую папку
-            3. Запусти `SharkFarm.exe`
-            4. Открой браузер: `http://localhost:1242`
+            ### РЈСЃС‚Р°РЅРѕРІРєР°
+            1. РЎРєР°С‡Р°Р№ `SharkFarm-win-x64.zip`
+            2. Р Р°СЃРїР°РєСѓР№ РІ Р»СЋР±СѓСЋ РїР°РїРєСѓ
+            3. Р—Р°РїСѓСЃС‚Рё `SharkFarm.exe`
+            4. РћС‚РєСЂРѕР№ Р±СЂР°СѓР·РµСЂ: `http://localhost:1242`
 
-            ### Структура папок
-            - `config/` — сюда клади JSON файлы аккаунтов
-            - `logs/` — логи работы программы
-            - `plugins/` — плагины
-            - `www/` — веб-интерфейс
-            - `system/` — системные файлы (не трогай)
+            ### РЎС‚СЂСѓРєС‚СѓСЂР° РїР°РїРѕРє
+            - `config/` вЂ” СЃСЋРґР° РєР»Р°РґРё JSON С„Р°Р№Р»С‹ Р°РєРєР°СѓРЅС‚РѕРІ
+            - `logs/` вЂ” Р»РѕРіРё СЂР°Р±РѕС‚С‹ РїСЂРѕРіСЂР°РјРјС‹
+            - `plugins/` вЂ” РїР»Р°РіРёРЅС‹
+            - `www/` вЂ” РІРµР±-РёРЅС‚РµСЂС„РµР№СЃ
+            - `system/` вЂ” СЃРёСЃС‚РµРјРЅС‹Рµ С„Р°Р№Р»С‹ (РЅРµ С‚СЂРѕРіР°Р№)
