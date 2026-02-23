@@ -177,6 +177,7 @@ jobs:
 
         # Include .ico file for all platforms, since only Windows script can bundle it inside the exe
         cp "resources/ASF.ico" "out/${VARIANT}/SharkFarm.ico"
+        cp -r "www" "out/${VARIANT}/www"
 
         # Include extra logic for builds marked for release
         case "$GITHUB_REF" in
