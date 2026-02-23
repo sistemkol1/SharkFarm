@@ -217,6 +217,9 @@ jobs:
         # Icon is available only in .exe Windows builds, we'll bundle the .ico file for other flavours
         if (!(Test-Path "out\$env:VARIANT\SharkFarm.exe" -PathType Leaf)) {
             Copy-Item 'resources\ASF.ico' "out\$env:VARIANT\SharkFarm.ico"
+        Copy-Item -Recurse 'www' "out\$env:VARIANT\www"
+        [System.IO.File]::WriteAllText("out\$env:VARIANT\Open WebUI.url", "[InternetShortcut]
+URL=http://localhost:1242/")
         }
 
         # Include extra logic for builds marked for release
